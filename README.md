@@ -33,7 +33,13 @@ df['colName'].isnull().sum() #결측치 개수 세기
 기초통계량
 df['colName'].mean(), median(), max(), min(), std(), sum()
 df['colName'].quantile(0.75) #사분위수
-round(value), abs(value)
+df['colName'].skew() #왜도 Skewness
+df['colName'].kurt() #첨도 Kurtosis
+df['colName'].cumsum() #누적합
+np.log1p('colName') #로그 변환
+print("%.3f" % 변수) #소수점 출력
+round(value, 자릿수) #반올림 np.ceil(value) #올림 np.floor(value) #내림 np.trunc(value) #버림
+abs(value) #절댓값
 
 상관관계
 df.corr() #str 제외하고 correlation matrix 생성
@@ -46,16 +52,32 @@ df['colName'].fillna(대체할 값)
 df.fillna(method = 'ffill' ,'bfill') #이전 값 대체, 이후 값 대체
 df['colName'] = df['colName'].fillna(df['분류 기준 컬럼'].map({'미오': 0, '내가': 1, '많이' : 2, '사랑해' : 4})) # 분류 기분별 다른 값으로 결측치 대체 (도시별 중앙값 대체 예제)
 df['colName'].dropna()
+df['colName'].drop_duplicates(subset='colName') 
 df['colName'].replace(대체될 값, 대체할 값)
 df['colName'].replace({0 : '미오', 1 : '사랑해'}) #값에 따라 다른 값으로 대체
-df['colName'].drop_duplicates()
 df['colname'].astype(형태) #컬럼 데이터 타입 변경
 df['colname'].sort_values(ascending= True | False)
 df.group_by('colName').mean()
 a, b, c, d = df.groupby('그룹화 기준 컬럼')['colName'].median() #그룹별 값 변수로 지정
 dfg = df.group_by(['colName1', 'colName2', as_index=False]) #결과 데이터프레임 뽑아 쓸땐 as_index=False 하면 편함
+df['range'] = pd.qcut( df['colName'], q=구간 개수, labels=['구간명1', '구간명2',,]) #구간 나누기
+
+
+
+스케일 변환
+# StandardScaler
+from sklearn.preprocessing import StandardScaler
+scaler = StandardScaler()
+df['colName']=scaler.fit_transform(df[['colName']]) #Z-score스케일 변환
+# MinMaxScaler
+from sklearn.preprocessing import MinMaxScaler
+scaler = MinMaxScaler()
+df['colName'] = scaler.fit_transform(df[['colName']]) #MinMax스케일 변환
 
 ```
+
+
+
 
 
 
