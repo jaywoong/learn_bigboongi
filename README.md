@@ -62,7 +62,7 @@ df.isnull().sum() #컬럼별 결측치 개수 확인
 df['colName'].isnull().sum() # 특정 컬럼 결측치 개수
 df['colName'].fillna(대체할 값) 
 df.fillna(method = 'ffill' ,'bfill') #이전 값 대체, 이후 값 대체
-df['colName'] = df['colName'].fillna(df['분류 기준 컬럼'].map({'카': 0, '와': 1, '카' : 2, '츠' : 4})) # 분류 기준별 다른 값으로 결측치 대체 (도시별 중앙값 대체 예제)
+df['colName'] = df['colName'].fillna(df['분류 기준 컬럼'].map({'쟈갸': 0, '미안행': 1, '부끄러워 않고' : 2, '표현 많이 할게' : 4})) # 분류 기준별 다른 값으로 결측치 대체 (도시별 중앙값 대체 예제)
 df['colName'].dropna() #axis=1 열삭제, subset='colName'
 df['colName'].drop_duplicates() 
 
@@ -70,7 +70,7 @@ df['colName'].drop_duplicates()
 전처리 #default: axis=0, inplace=False
 df['colName'].sort_values(by='colName', ascending= TF)
 df['colName'].replace(대체될 값, 대체할 값)
-df['colName'].replace({0 : '스', 1 : '코', 2 : '프'}) #값에 따라 다른 값으로 대체
+df['colName'].replace({0 : '내가', 1 : '많이', 2 : '사랑해'}) #값에 따라 다른 값으로 대체
 df['colName'].astype('타입명') #타입 변환
 df['colName'] = pd.to_datetime(df['colName']) #datetime으로 변환
 df['colName'].dt.year, month, day
