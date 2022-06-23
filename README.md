@@ -206,7 +206,41 @@ print("교차검증 정확도:", scores)
 
 
 ```
+
+
+```python
+import pandas as pd
+import numpy as np
+
+from sklearn.model_selection import train_test_split
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=200) #점수 안좋으면 random_state 바꾸기
+
+from sklearn.preprocessing import OneHotEncoder   #.unique() 20이하
+from sklearn.preprocessing import LabelEncoder    #.unique() 20이상 (100이상은 컬럼 drop)
+
+from sklearn.preprocessing import MinMaxScaler    #얘 먼저 해보고
+from sklearn.preprocessing import StandardScaler  #결과 보고 스케일러 바꿔보기
+
+from sklearn.ensemble import RandomForestClassifier #분류
+from sklearn.ensemble import RandomForestRegressor  #회귀
+
+from sklearn.metrics import roc_auc_score        #분류
+from sklearn.metrics import mean_squared_error   #회귀
+
+'''
+점수 낮으면
+1. train_test_split에 random_state 바꾸기 
+2. MinMaxScaler -> StandardScaler 바꾸기 
+3. Encoder 바꾸기
+4. 결측치가 많거나 클래스가 다양한 컬럼 제거
+5. 다음 시험 접수
+'''
+
+```
+
 ####
+
+
 
 
 
