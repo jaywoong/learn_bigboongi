@@ -21,7 +21,7 @@ pd.set_option('display.max_rows',None)
 df.iloc[시작(포함):끝(포함):간격 , 열:열:간격] #index 숫자값
 df.iloc[rowNumber]['colName'] #열 이름으로
 df.iloc[n, m] #n행m열에 있는 값
-df.iloc[:n, :m] #0~n행 0~m열 dataframe
+df.iloc[1:7, 0:2] #1~7행 0~2열 dataframe
 df.iloc[[n1,n2,n3], [m1,m2,m3]] #n1n2n3행 m1m2m3열 dataframe
 
 
@@ -35,7 +35,7 @@ df.count() #결측치 아닌 행 개수
 df.info() #데이터 개수, 타입
 df.describe() #각 컬럼 요약 통계
 df['colName'].value_counts() #특정 컬럼의 값 개수 세기
-
+df_1 = df[(df['col_1']==1) & (df['col_2']>=30)] # 특정 케이스 추출하기
 
 기초통계량
 df['colName']. sum(), mean(), median(), max(), min(), var(), std(), mode()
@@ -100,14 +100,34 @@ scaler = MinMaxScaler()
 df['colName'] = scaler.fit_transform(df[['colName']]) #MinMax스케일 변환
 
 
-```
-
-
-
-
-
 
 ## 2유형<a id="idx2"></a>
+
+### 선형회귀
+#특성/레이블 데이터셋 나누기
+import pandas as pd
+data = pd.read_csv('house.csv')
+X = data[data.columns[0:5]] 
+y = data['colName']] 
+#학습용/테스트용 데이터 나누기
+from sklearn.model_selection import train_test_split
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
+#데이터 정규화
+from sklearn.preprocessing import MinMaxScaler
+scaler_minmax = MinMaxScaler()
+scaler_minmax.fit(X_train)
+X_scaled_minmax_train = scaler_minmax.transform(X_train)
+X_scaled_minmax_test = scaler_minmax.transform(X_test)
+#선형 모델 적용
+from sklearn.linear_model import LinearRegression
+model = LinearRegression()
+model.fit(X_scaled_minmax_train, y_train)
+#훈련 데이터의 정확도(R-square: 설명력) 확인
+pred_train = model.predict(X_scaled_minmax_train)
+model.score(X_scaled_minmax_train, y_train)
+#테스트 데이터의 정확도(R-square: 설명력) 확인
+pred_test = model.predict(X_scaled_minmax_test)
+model.score(X_scaled_minmax_test, y_test)
 
 
 
@@ -119,4 +139,6 @@ df['colName'] = scaler.fit_transform(df[['colName']]) #MinMax스케일 변환
 
 
 
-### 
+###
+
+```
