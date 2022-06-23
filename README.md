@@ -117,11 +117,11 @@ df = pd.read_csv('house.csv')
 df.info() #범주형 변수 확인
 
 범주형 변수를 one-hot-encoding으로 변환
-X_dum = pd.get_dummies(df['colName']) #0,1,,로 나눔 
-df = pd.concat([df, X_dum], axis=1) 
+X_dum = pd.get_dummies(df['region']) #0,1,,로 나눔
+df = pd.concat([df, X_dum], axis=1) #데이터 통합
 
 특성/레이블 데이터셋 나누기
-X = df[df.columns[0:5]] #X = df[['colName_1', 'colName_2', 'colName_3']]
+X = df[df.columns[0:5]] / X = df[['colName_1', 'colName_2', 'colName_3']]
 y = df[['colName']] 
 X.shape(), y.shape() #컬럼 제대로 나눠졌는지 확인
 
@@ -176,10 +176,30 @@ print("훈련데이터 RMSE:", np.sqrt(MSE_train))
 print("테스트데이터 RMSE:", np.sqrt(MSE_test)
 
 
-훈련데이터의 평가지표 상세 확인
+평가지표 상세 확인
 from sklearn.metrics import classification_report
 cfreport_train = classification_report(y_train, pred_train)
 print("분류예측 레포트:\n", cfreport_train)
+
+
+교차검증
+1. cross_val_score : 랜덤 없음
+from sklearn.model_selection import cross_val_score
+scores = cross_val_score(model, X_train, y_train, cv=5)
+print("5개 테스트 셋 정확도:", scores)
+print("정확도 평균:", scores.mean())
+
+2. kFold : 랜덤 있음
+from sklearn.model_selection import KFold
+kfold = KFold(n_splits=5, shuffle=True, random_state=42)
+score = cross_val_score(model, X_train, y_train, cv=kfold)
+print("5개 폴드의 정확도:", scores)
+
+3. ShuffleSplit : 임의 분할
+from sklearn.model_selection import ShuffleSplit
+shuffle_split = ShuffleSplit(test_size=0.5, train_size=0.5, random_state=42)
+score = cross_val_score(model, X_train, y_train, cv=shuffle_split)
+print("교차검증 정확도:", scores)
 
 
 ```
