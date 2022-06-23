@@ -111,8 +111,7 @@ df['colName'] = scaler.fit_transform(df[['colName']]) #MinMax스케일 변환
 
 ## 2유형<a id="idx2"></a>
 
-#### 선형회귀
-```
+```python
 특성/레이블 데이터셋 나누기
 import pandas as pd
 data = pd.read_csv('house.csv')
