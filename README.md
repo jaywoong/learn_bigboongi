@@ -118,7 +118,7 @@ data = pd.read_csv('house.csv')
 X = data[data.columns[0:5]] 
 y = data['colName']] 
 
-훈련용/테스트용 데이터 나누기
+훈련(학습)/테스트 데이터 나누기
 from sklearn.model_selection import train_test_split
 X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
 
@@ -135,26 +135,26 @@ scaler_standard.fit(X_train)
 X_scaled_standard_train = scaler_standard.transform(X_train)
 
 모델 학습
-1. 선형회귀
+1. 선형 회귀
 from sklearn.linear_model import LinearRegression
 model = LinearRegression()
 model.fit(X_scaled_minmax_train, y_train)
-2. 로지스틱회귀
+2. 로지스틱 회귀
 from sklearn.linear_model import LogisticRegression
 model = LogisticRegression()
 model.fit(X_scaled_minmax_train, y_train)
 
 
-훈련데이터에 모델 적용해 결과 예측
+훈련데이터에 모델 적용해 예측
 pred_train = model.predict(X_scaled_minmax_train)
 
-훈련데이터의 정확도(R-square: 설명력) 확인
+훈련데이터의 정확도(R-square설명력)확인
 model.score(X_scaled_minmax_train, y_train)
 
-훈련데이터에 모델 적용해 결과 예측
+훈련데이터에 모델 적용해 예측
 pred_test = model.predict(X_scaled_minmax_test)
 
-테스트 데이터의 정확도(R-square: 설명력) 확인
+테스트데이터의 정확도(R-square설명력)확인
 model.score(X_scaled_minmax_test, y_test)
 
 훈련데이터의 평가지표 상세 확인
@@ -163,8 +163,6 @@ cfreport_train = classification_report(y_train, pred_train)
 print("분류예측 레포트:\n", cfreport_train)
 ```
 ####
-
-
 
 
 
