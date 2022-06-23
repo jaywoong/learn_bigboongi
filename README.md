@@ -112,55 +112,76 @@ df['colName'] = scaler.fit_transform(df[['colName']]) #MinMax스케일 변환
 ## 2유형<a id="idx2"></a>
 
 ```python
-특성/레이블 데이터셋 나누기
 import pandas as pd
-data = pd.read_csv('house.csv')
-X = data[data.columns[0:5]] 
-y = data['colName']] 
+df = pd.read_csv('house.csv')
+df.info() #범주형 변수 확인
+
+범주형 변수를 one-hot-encoding으로 변환
+X_dum = pd.get_dummies(df['colName']) #0,1,,로 나눔 
+df = pd.concat([df, X_dum], axis=1) 
+
+특성/레이블 데이터셋 나누기
+X = df[df.columns[0:5]] #X = df[['colName_1', 'colName_2', 'colName_3']]
+y = df[['colName']] 
+X.shape(), y.shape() #컬럼 제대로 나눠졌는지 확인
 
 훈련(학습)/테스트 데이터 나누기
 from sklearn.model_selection import train_test_split
 X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
+X_train.shape(), X_test.shape() #훈련/테스트 데이터 구조 확인
 
-데이터 정규화 
+데이터 정규화 - 연속형
 1. Min-Max
 from sklearn.preprocessing import MinMaxScaler
 scaler_minmax = MinMaxScaler()
-scaler_minmax.fit(X_train)
+scaler_minmax.fit(X_train) #fit은 학습데이터로 해야됨
 X_scaled_minmax_train = scaler_minmax.transform(X_train)
 X_scaled_minmax_test = scaler_minmax.transform(X_test)
-2. Standard
+
+2. Standardization
 scaler_standard = StandardScaler()
 scaler_standard.fit(X_train)
 X_scaled_standard_train = scaler_standard.transform(X_train)
+
 
 모델 학습
 1. 선형 회귀
 from sklearn.linear_model import LinearRegression
 model = LinearRegression()
 model.fit(X_scaled_minmax_train, y_train)
+
 2. 로지스틱 회귀
 from sklearn.linear_model import LogisticRegression
 model = LogisticRegression()
 model.fit(X_scaled_minmax_train, y_train)
 
+3. 랜덤포레스트
+from sklearn.ensemble import RandomForestRegressor
+model = RandomForestRegressor()
+model.fit(X_scaled_train, y_train)
 
-훈련데이터에 모델 적용해 예측
+
+결과 예측
 pred_train = model.predict(X_scaled_minmax_train)
-
-훈련데이터의 정확도(R-square설명력)확인
-model.score(X_scaled_minmax_train, y_train)
-
-훈련데이터에 모델 적용해 예측
+model.score(X_scaled_minmax_train, y_train) #훈련데이터 정확도 확인(R-square설명력)
 pred_test = model.predict(X_scaled_minmax_test)
+model.score(X_scaled_minmax_test, y_test) #테스트데이터 정확도 확인
 
-테스트데이터의 정확도(R-square설명력)확인
-model.score(X_scaled_minmax_test, y_test)
+RMSE 확인
+import numpy as np
+from sklearn.metrics import mean_squared_error 
+MSE_train = mean_squared_error(y_train, pred_train)
+MSE_test = mean_squared_error(y_test, pred_test)
+print("훈련데이터 RMSE:", np.sqrt(MSE_train))
+print("테스트데이터 RMSE:", np.sqrt(MSE_test)
+
 
 훈련데이터의 평가지표 상세 확인
 from sklearn.metrics import classification_report
 cfreport_train = classification_report(y_train, pred_train)
 print("분류예측 레포트:\n", cfreport_train)
+
+
 ```
 ####
 
