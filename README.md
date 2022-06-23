@@ -113,30 +113,55 @@ df['colName'] = scaler.fit_transform(df[['colName']]) #MinMax스케일 변환
 
 #### 선형회귀
 ```
-#특성/레이블 데이터셋 나누기
+특성/레이블 데이터셋 나누기
 import pandas as pd
 data = pd.read_csv('house.csv')
 X = data[data.columns[0:5]] 
 y = data['colName']] 
-#훈련용/테스트용 데이터 나누기
+
+훈련용/테스트용 데이터 나누기
 from sklearn.model_selection import train_test_split
 X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
-#데이터 정규화
+
+데이터 정규화 
+1. Min-Max
 from sklearn.preprocessing import MinMaxScaler
 scaler_minmax = MinMaxScaler()
 scaler_minmax.fit(X_train)
 X_scaled_minmax_train = scaler_minmax.transform(X_train)
 X_scaled_minmax_test = scaler_minmax.transform(X_test)
-#선형모델 적용
+2. Standard
+scaler_standard = StandardScaler()
+scaler_standard.fit(X_train)
+X_scaled_standard_train = scaler_standard.transform(X_train)
+
+모델 학습
+1. 선형회귀
 from sklearn.linear_model import LinearRegression
 model = LinearRegression()
 model.fit(X_scaled_minmax_train, y_train)
-#훈련 데이터의 정확도(R-square: 설명력) 확인
+2. 로지스틱회귀
+from sklearn.linear_model import LogisticRegression
+model = LogisticRegression()
+model.fit(X_scaled_minmax_train, y_train)
+
+
+훈련데이터에 모델 적용해 결과 예측
 pred_train = model.predict(X_scaled_minmax_train)
+
+훈련데이터의 정확도(R-square: 설명력) 확인
 model.score(X_scaled_minmax_train, y_train)
-#테스트 데이터의 정확도(R-square: 설명력) 확인
+
+훈련데이터에 모델 적용해 결과 예측
 pred_test = model.predict(X_scaled_minmax_test)
+
+테스트 데이터의 정확도(R-square: 설명력) 확인
 model.score(X_scaled_minmax_test, y_test)
+
+훈련데이터의 평가지표 상세 확인
+from sklearn.metrics import classification_report
+cfreport_train = classification_report(y_train, pred_train)
+print("분류예측 레포트:\n", cfreport_train)
 ```
 ####
 
