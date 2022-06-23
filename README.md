@@ -45,25 +45,30 @@ df['colName'].nunique() #고유값 개수
 df['colName'].skew() #왜도 Skewness
 df['colName'].kurt() #첨도 Kurtosis
 df['colName'].cumsum() #누적합
-np.log1p('colName') #로그 변환
+np.log1p('colName'), np.log(df['colName']) #로그 변환
+np.sqrt(df['colName']) #제곱근 변환
 np.ceil(value), floor(), trunc() #올림, 내림, 버림
 round(value, 자릿수) #반올림 
 abs(value) #절댓값
 print("%.3f" % 변수) #소수점 출력
 
-df.corr() #str제외하고 컬럼별 상관관계 행렬 생성
+df.corr() #모든 변수 간 상관관계 계산하여 행렬 반환
 df.corr()['colName'] #특정 컬럼에 대한 상관관계
 df['colName1', 'colName2'].corr() #두 변수간의 상관관계 구할 때
 df.corr(method = 'pearson' , 'spearman' , 'kendall' ) #조건 있으면 method 지정
+df.cov() #모든 변수 간 공분산을 계산하여 행렬 반환
+df.pct_change() #퍼센트 변화율 계산
 
 
 결측치 
 df.isnull().sum() #컬럼별 결측치 개수 확인
 df['colName'].isnull().sum() # 특정 컬럼 결측치 개수
-df['colName'].fillna(대체할 값) 
-df.fillna(method = 'ffill' ,'bfill') #이전 값 대체, 이후 값 대체
+
+df.fillna(method = 'ffill' ,'bfill') #이전 값으로 대체, 이후 값으로 대체
+df['colName'].fillna(df.mean()['colName']) #특정 컬럼의 평균값으로 대체
 df['colName'] = df['colName'].fillna(df['분류 기준 컬럼'].map({'쟈갸': 0, '미안행': 1, '부끄러워 않고' : 2, '표현 많이 할게' : 4})) # 분류 기준별 다른 값으로 결측치 대체 (도시별 중앙값 대체 예제)
-df['colName'].dropna() #axis=1 열삭제, subset='colName'
+
+df['colName'].dropna() #axis=0 행 삭제, axis=1 열 삭제, subset='colName'
 df['colName'].drop_duplicates() 
 
 
@@ -82,6 +87,9 @@ df.group_by('colName').통계함수()
 df.group_by(['colName1', 'colName2']).mean()
 a, b, c, d = df.groupby('그룹화 기준 컬럼')['colName'].median() #그룹별 값 변수로 지정
 dfg = df.group_by(['colName1', 'colName2', as_index=False]) #결과 데이터프레임 뽑아 쓸땐 as_index=False 하면 편함
+# 그룹 평균값으로 대체
+fill_func = lambda x: x.fillna(x.mean())
+df_1 = df.groupby('colName').apply(fill_func)
 
 
 데이터 연결
@@ -98,18 +106,19 @@ df['colName'] = scaler.fit_transform(df[['colName']]) #Z-score스케일 변환
 from sklearn.preprocessing import MinMaxScaler
 scaler = MinMaxScaler()
 df['colName'] = scaler.fit_transform(df[['colName']]) #MinMax스케일 변환
-
+```
 
 
 ## 2유형<a id="idx2"></a>
 
-### 선형회귀
+#### 선형회귀
+```
 #특성/레이블 데이터셋 나누기
 import pandas as pd
 data = pd.read_csv('house.csv')
 X = data[data.columns[0:5]] 
 y = data['colName']] 
-#학습용/테스트용 데이터 나누기
+#훈련용/테스트용 데이터 나누기
 from sklearn.model_selection import train_test_split
 X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
 #데이터 정규화
@@ -118,7 +127,7 @@ scaler_minmax = MinMaxScaler()
 scaler_minmax.fit(X_train)
 X_scaled_minmax_train = scaler_minmax.transform(X_train)
 X_scaled_minmax_test = scaler_minmax.transform(X_test)
-#선형 모델 적용
+#선형모델 적용
 from sklearn.linear_model import LinearRegression
 model = LinearRegression()
 model.fit(X_scaled_minmax_train, y_train)
@@ -128,8 +137,8 @@ model.score(X_scaled_minmax_train, y_train)
 #테스트 데이터의 정확도(R-square: 설명력) 확인
 pred_test = model.predict(X_scaled_minmax_test)
 model.score(X_scaled_minmax_test, y_test)
-
-
+```
+####
 
 
 
