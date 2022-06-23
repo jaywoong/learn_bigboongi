@@ -18,12 +18,12 @@ pd.set_option('display.max_rows',None)
 
 
 인덱싱
-df.iloc[시작(포함):끝(포함):간격 , 열:열:간격] #index 숫자값
+df.iloc[시작(포함):끝(포함):간격 , 열:열:간격] #인덱스가 숫자
 df.iloc[rowNumber]['colName'] #열 이름으로
-df.iloc[n, m] #n행m열에 있는 값
-df.iloc[1:7, 0:2] #1~7행 0~2열 dataframe
-df.iloc[[n1,n2,n3], [m1,m2,m3]] #n1n2n3행 m1m2m3열 dataframe
-
+df.iloc[1, 2] #2행 3열에 있는 값
+df.iloc[1:7, 0:2] #1~7행 0~2열 DataFrame
+df.iloc[[n1,n2,n3], [m1,m2,m3]] #n1n2n3행 m1m2m3열 DataFrame
+df.loc['a':'b", 'c':'d'] #행이름a~b 열이름c~d DataFrame. 인덱스가 문자
 
 데이터프레임 정보 확인
 df.head(10)
@@ -114,21 +114,21 @@ df['colName'] = scaler.fit_transform(df[['colName']]) #MinMax스케일 변환
 ```python
 import pandas as pd
 df = pd.read_csv('house.csv')
-df.info() #범주형 변수 확인
+df.info() #연속형/범주형 변수 확인
 
-범주형 변수를 one-hot-encoding으로 변환
+범주형 변수 one-hot-encoding으로 변환
 X_dum = pd.get_dummies(df['region']) #0,1,,로 나눔
 df = pd.concat([df, X_dum], axis=1) #데이터 통합
 
 특성/레이블 데이터셋 나누기
-X = df[df.columns[0:5]] / X = df[['colName_1', 'colName_2', 'colName_3']]
+X = df[df.columns[0:3]] / X = df[['colName_1', 'colName_2', 'colName_3']]
 y = df[['colName']] 
-X.shape(), y.shape() #컬럼 제대로 나눠졌는지 확인
+X.shape(), y.shape() #X,y 컬럼 제대로 나눴는지 확인
 
 훈련(학습)/테스트 데이터 나누기
 from sklearn.model_selection import train_test_split
-X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42)
-X_train.shape(), X_test.shape() #훈련/테스트 데이터 구조 확인
+X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42) #split할 떄 변수 쓰는 순서 꼭 지키기
+X_train.shape(), X_test.shape() #훈련/테스트데이터 제대로 나눴는지 확인
 
 데이터 정규화 - 연속형
 1. Min-Max
@@ -161,13 +161,17 @@ model = RandomForestRegressor()
 model.fit(X_scaled_train, y_train)
 
 
-결과 예측
+모델 적용 & 예측
 pred_train = model.predict(X_scaled_minmax_train)
-model.score(X_scaled_minmax_train, y_train) #훈련데이터 정확도 확인(R-square설명력)
 pred_test = model.predict(X_scaled_minmax_test)
-model.score(X_scaled_minmax_test, y_test) #테스트데이터 정확도 확인
 
-RMSE 확인
+
+정확도 확인
+1. R-square 설명력
+model.score(X_scaled_minmax_train, y_train) #훈련데이터
+model.score(X_scaled_minmax_test, y_test) #테스트데이터
+
+2. RMSE
 import numpy as np
 from sklearn.metrics import mean_squared_error 
 MSE_train = mean_squared_error(y_train, pred_train)
@@ -175,8 +179,7 @@ MSE_test = mean_squared_error(y_test, pred_test)
 print("훈련데이터 RMSE:", np.sqrt(MSE_train))
 print("테스트데이터 RMSE:", np.sqrt(MSE_test)
 
-
-평가지표 상세 확인
+3. 상세 평가지표
 from sklearn.metrics import classification_report
 cfreport_train = classification_report(y_train, pred_train)
 print("분류예측 레포트:\n", cfreport_train)
@@ -189,7 +192,7 @@ scores = cross_val_score(model, X_train, y_train, cv=5)
 print("5개 테스트 셋 정확도:", scores)
 print("정확도 평균:", scores.mean())
 
-2. kFold : 랜덤 있음
+2. KFold : 랜덤 있음
 from sklearn.model_selection import KFold
 kfold = KFold(n_splits=5, shuffle=True, random_state=42)
 score = cross_val_score(model, X_train, y_train, cv=kfold)
