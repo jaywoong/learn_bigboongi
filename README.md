@@ -212,28 +212,71 @@ print("교차검증 정확도:", scores)
 import pandas as pd
 import numpy as np
 
+from sklearn.preprocessing import *
+from sklearn.model_selection import *
+from sklearn.ensemble import *
+from sklearn.metrics import *
+
+df.info()
+df.head()
+df['col'].nunique()
+df.isnull().sum() #df['col'].fillna() or df = df.drop('col')
+
+#.nunique() 20이하
+df_train = pd.get_dummies(df_train)
+print(df_train.shape)
+df_test = pd.get_dummies(df_test)[df_train.columns] ## data leakage 위배가능성 차단
+print(df_test.shape)
+
+#.unique() 20이상 (100이상은 컬럼 drop)
+le = LabelEncoder()
+le = le.fit(train['col'])   #train['col']을 fit
+train['col'] = le.transform(train['col'])   #train['col']에 따라 encoding
+test['col'] = le.transform(test['col'])   #train['col']에 따라 encoding
+
+#MinMaxScaler
+scaler = MinMaxScaler()
+scaler.fit(X_train) #fit은 학습데이터로 해야됨
+X_train_scaled = scaler.transform(X_train)
+X_test_scaled = scaler.transform(X_test)
+
+#결과 안좋으면 스케일러 바꿔보기
+scaler = StandardScaler()
+scaler.fit(X_train)
+X_train_scaled = scaler_standard.transform(X_train)
+X_test_scaled = scaler_standard.transform(X_test)
+# ------------------------------- 모델 성능 확인 ---------------------------------
 from sklearn.model_selection import train_test_split
-X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=200) #점수 안좋으면 random_state 바꾸기
+X_train_val, X_test_val, y_train_val, y_test_val = train_test_split(X_train, y_train, random_state=200)
 
-from sklearn.preprocessing import OneHotEncoder   #.unique() 20이하
-from sklearn.preprocessing import LabelEncoder    #.unique() 20이상 (100이상은 컬럼 drop)
+from sklearn.ensemble import RandomForestClassifier 
+rf = RandomForestClassifier(max_depth = 10, random_state = 5)
+rf.fit(X_train_val, y_train_val)
+pred_val = rf.predict_proba(X_test_val)[:,1]
 
-from sklearn.preprocessing import MinMaxScaler    #얘 먼저 해보고
-from sklearn.preprocessing import StandardScaler  #결과 보고 스케일러 바꿔보기
+from sklearn.metrics import roc_auc_score        
+print(roc_auc_score(y_test_val, pred_val))
+# -------------------------------------------------------------------------------
 
 from sklearn.ensemble import RandomForestClassifier #분류
-from sklearn.ensemble import RandomForestRegressor  #회귀
+rf = RandomForestClassifier(max_depth = 10, random_state = 5)
+rf.fit(X_train, y_train)
+pred = rf.predict_proba(X_test)[:,1]
 
 from sklearn.metrics import roc_auc_score        #분류
-from sklearn.metrics import mean_squared_error   #회귀
+print(roc_auc_score(y_test_m, pred))
+
+from sklearn.ensemble import RandomForestRegressor  #회귀 모델링
+from sklearn.metrics import mean_squared_error   #회귀 검사
+
 
 '''
 점수 낮으면
 1. train_test_split에 random_state 바꾸기 
-2. MinMaxScaler -> StandardScaler 바꾸기 
-3. Encoder 바꾸기
-4. 결측치가 많거나 클래스가 다양한 컬럼 제거
-5. 다음 시험 접수
+2. RandomForestClassifier의 max_depth 바꾸기
+3. 결측치가 많거나 클래스가 다양한 컬럼 제거
+4. MinMaxScaler -> StandardScaler 바꾸기 
+5. Encoder 바꾸기
 '''
 
 ```
