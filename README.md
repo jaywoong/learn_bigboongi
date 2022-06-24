@@ -234,6 +234,8 @@ le = le.fit(train['col'])   #train['col']을 fit
 train['col'] = le.transform(train['col'])   #train['col']에 따라 encoding
 test['col'] = le.transform(test['col'])   #train['col']에 따라 encoding
 
+#ID 컬럼 추출 후 제거
+
 #MinMaxScaler
 scaler = MinMaxScaler()
 scaler.fit(X_train) #fit은 학습데이터로 해야됨
