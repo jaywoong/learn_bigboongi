@@ -247,7 +247,9 @@ scaler = StandardScaler()
 scaler.fit(X_train)
 X_train_scaled = scaler_standard.transform(X_train)
 X_test_scaled = scaler_standard.transform(X_test)
+
 # ------------------------------- 모델 성능 확인 ---------------------------------
+
 from sklearn.model_selection import train_test_split
 X_train_val, X_test_val, y_train_val, y_test_val = train_test_split(X_train, y_train, random_state=200)
 
@@ -258,18 +260,28 @@ pred_val = rf.predict_proba(X_test_val)[:,1]
 
 from sklearn.metrics import roc_auc_score        
 print(roc_auc_score(y_test_val, pred_val))
-# -------------------------------------------------------------------------------
 
-from sklearn.ensemble import RandomForestClassifier #분류
+# ------------------------------ 분류 -------------------------------------------------
+
+from sklearn.ensemble import RandomForestClassifier   #분류
 rf = RandomForestClassifier(max_depth = 10, random_state = 5)
 rf.fit(X_train, y_train)
-pred = rf.predict_proba(X_test)[:,1]
+pred = rf.predict_proba(X_test)[:,1]   #확률값 (이진분류 0 = 거짓, 1 = 참) (다중분류 각 집단의 순서에 맞게)
+pred = rf.predict(X_test)   #결과값  (이진분류 참, 거짓 반환) (다중분류 집단 번호 반환)
 
-from sklearn.metrics import roc_auc_score        #분류
+from sklearn.metrics import roc_auc_score   #분류 검사
 print(roc_auc_score(y_test_m, pred))
 
+# ------------------------------- 회귀 ------------------------------------------------
+
 from sklearn.ensemble import RandomForestRegressor  #회귀 모델링
+rf = RandomForestRegressor(max_depth = 10, random_state = 5)
+rf.fit(X_train, y_train)
+pred = rf.predict(X_test)   #결과값 (각 고객이 다음 방문에 얼마를 소비할지 반환)
+
 from sklearn.metrics import mean_squared_error   #회귀 검사
+print(mean_squared_error(y_test_m, pred))
+
 
 
 '''
@@ -284,7 +296,10 @@ from sklearn.metrics import mean_squared_error   #회귀 검사
 ```
 
 ####
+범주형 변수 분류 예측 구분하기~!! 
+이거 또 틀리면 한 달 동안 묭청이로 불릴 예정!
 
+![image](https://user-images.githubusercontent.com/85271084/204086247-e8181b71-57ca-4ee3-92ea-46829a5d0c3e.png)
 
 
 
