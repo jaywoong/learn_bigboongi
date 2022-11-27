@@ -18,11 +18,12 @@ pd.set_option('display.max_rows',None)
 
 
 인덱싱
+iloc: 행/열순서(숫자), loc: 행/열이름
 df.iloc[시작(포함):끝(포함):간격 , 열:열:간격] #인덱스가 숫자
-df.iloc[rowNumber]['colName'] #열 이름으로
 df.iloc[1, 2] #2행 3열에 있는 값
-df.iloc[1:7, 0:2] #1~7행 0~2열 DataFrame
-df.iloc[[n1,n2,n3], [m1,m2,m3]] #n1n2n3행 m1m2m3열 DataFrame
+df.iloc[1:7, 0:2] #1~7행 0~2열 DataFrame반환
+df.iloc[[n1,n2,n3], [m1,m2,m3]] #n1n2n3행 m1m2m3열 DataFrame반환
+df.iloc[rowNumber]['colName'] #열이름
 df.loc['a':'b", 'c':'d'] #행이름a~b 열이름c~d DataFrame. 인덱스가 문자
 
 데이터프레임 정보 확인
