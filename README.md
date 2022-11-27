@@ -26,6 +26,7 @@ df.iloc[[n1,n2,n3], [m1,m2,m3]] #n1n2n3행 m1m2m3열 DataFrame반환
 df.iloc[rowNumber]['colName'] #열이름
 df.loc['a':'b", 'c':'d'] #행이름a~b 열이름c~d DataFrame. 인덱스가 문자
 
+
 데이터프레임 정보 확인
 df.head(10)
 df.tail(10)
@@ -37,6 +38,9 @@ df.info() #데이터 개수, 타입
 df.describe() #각 컬럼 요약 통계
 df['colName'].value_counts() #특정 컬럼의 값 개수 세기
 df_1 = df[(df['col_1']==1) & (df['col_2']>=30)] # 특정 케이스 추출하기
+series.index(순서) # 시리즈의 인덱스이름 뽑기
+df.columns[순서] # 데이터프레임의 열이름 뽑기
+
 
 기초통계량
 df['colName']. sum(), mean(), median(), max(), min(), var(), std(), mode()
