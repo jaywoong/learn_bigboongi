@@ -25,16 +25,16 @@ df= pd.read_csv('데이터셋 위치경로')
 
 
 데이터프레임 정보 확인
-df.head(10), df.tail(10)
-df.shape # (행 개수, 열 개수) 
-df.shape[0] # 행 개수
-df.shape[1] # 열 개수 
-len(df) # 행 개수
+df.shape # (행 개수, 열 개수) df.shape[0] 행 개수, df.shape[1] 열 개수
+len(df) # 결측치 포함한 행 개수
 df.count() # 결측치 제외한 행 개수
+df['열이름'].value_counts() # 해당 열의 데이터별 개수
 df.info() # 열 이름, 개수, 데이터 타입
 df.describe() # 열별 요약 통계(개수, 평균, 표준편차 등)
-df['열이름'].value_counts() # 해당 열의 데이터별 개수
+df['열이름'].unique() #고유값
+df['열이름'].nunique() #고유값 개수
 df_1 = df[(df['col_1']==1) & (df['col_2']>=30)] # 특정 조건인 데이터만 추출해 데이터프레임 반환
+s= df[df['city']=='서울']['f1'].median()
 series.index(순서) # 시리즈의 인덱스이름 뽑기
 df.columns[순서] # 데이터프레임의 열이름 뽑기
 
@@ -52,15 +52,16 @@ df.loc['a':'b", 'c':'d'] #행이름a~b 열이름c~d DataFrame. 인덱스가 문�
 기초통계량
 df['열이름']. sum(), mean(), median(), max(), min(), var(), std(), mode()
 df['열이름'].quantile() #분위
-df['열이름'].unique() #고유값
-df['열이름'].nunique() #고유값 개수
+
+df[(df['age']-np.floor(df['age']))!= 0] # 정수가 아닌 데이터 찾기
+np.ceil(value), floor(), trunc() #올림, 내림, 버림
+round(value, 자릿수) #반올림 
+
 df['열이름'].skew() #왜도 Skewness
 df['열이름'].kurt() #첨도 Kurtosis
 df['열이름'].cumsum() #누적합
 np.log1p('열이름'), np.log(df['열이름']) #로그 변환
 np.sqrt(df['열이름']) #제곱근 변환
-np.ceil(value), floor(), trunc() #올림, 내림, 버림
-round(value, 자릿수) #반올림 
 abs(value) #절댓값
 print("%.3f" % 변수) #소수점 출력
 
@@ -70,7 +71,7 @@ Q1= df['열이름'].quantile(0.25)
 Q3= df['열이름'].quantile(0.75)
 min= Q1 - 1.5*IQR 
 max= Q1 + 1.5*IQR 
-utlier= df[(df['열이름']<min)|(df['열이름']>max)]
+outlier= df[(df['열이름']<min) | (df['열이름']>max)]
 
 df.corr() # 모든 변수 간 상관관계 계산하여 행렬 반환
 df.corr()['열이름'] # 특정 열에 대한 상관관계
@@ -81,16 +82,18 @@ df.pct_change() # 퍼센트 변화율 계산
 
 
 결측치 
-df.isnull().sum() # 열별 결측치 개수 확인
+df.isnull().sum() # 열별 결측치 개수
 df['열이름'].isnull().sum() # 특정 열 결측치 개수
+df.count(), df.shape[0] # 열별 데이터 개수
 
-df.fillna(method = 'ffill' ,'bfill') # 결측치를 ffill이전 값으로 대체, bfill이후 값으로 대체
+df.fillna(method= 'ffill','bfill') # 결측치를 ffill이전 값으로 대체, bfill이후 값으로 대체
 df['열이름'].fillna(df.mean()['열이름']) # 결측치를 특정 열의 평균값으로 대체
 df['열이름'] = df['열이름'].fillna(df['분류 기준 열'].map({'쟈갸': 0, '고마워': 1, '많이' : 2, '반성해' : 4})) # 분류 기준별 다른 값으로 결측치 대체 (도시별 중앙값 대체 예제)
 
-df['열이름'].dropna() #axis=0 행 삭제, axis=1 열 삭제, subset='열이름'
+df['열이름'].dropna() # axis=0 행 삭제, axis=1 열 삭제
 df['열이름'].drop_duplicates() 
-
+df.dropna(subset=['열이름'], inplace=True) # 특정 열의 결측치 행 삭제
+df.drop(['열이름'], axis=1) # 특정 열 삭제
 
 전처리 
 디폴트값: axis=0, inplace=False
@@ -100,17 +103,21 @@ df['열이름'].replace({0 : '내가', 1 : '많이', 2 : '미안해'}) # 값에 
 df['열이름'].astype('타입명') # 타입 변환
 df['열이름'] = pd.to_datetime(df['열이름']) # datetime으로 변환
 df['열이름'].dt.year, month, day
-df['rangeName'] = pd.qcut(df['열이름'], q=구간 개수, labels=['구간명1', '구간명2',,, ]) # q개씩 균등하게 분할
+df['rangeName'] = pd.qcut(df['열이름'], q=구간 개수, labels=['구간명1', '구간명2', ]) # q개씩 균등하게 분할
 
 
 그룹 나누기
 df.group_by('열이름').통계함수() 
-df.group_by(['열이름1', '열이름2']).mean()
-a, b, c, d = df.groupby('그룹화 기준 열')['열이름'].median() # 그룹별 값 변수로 지정
-dfg = df.group_by(['열이름1', '열이름2', as_index=False]) # 결과 데이터프레임 뽑아 쓸땐 as_index=False 하면 편함
-# 그룹 평균값으로 대체
+-> df.group_by(['열이름1', '열이름2']).mean()
+
+a,b,c,d = df.groupby('city')['f1'].median() # 같은 열(city)의 특정 열(f1) 중앙값
+df['f1'] = df[(df['city']=='서울')]['f1'].fillna(a) 
+df['f1'].fillna(df['city'].map({'서울':s,'경기':k,'부산':b,'대구':d}))
+
+dfg = df.group_by(['열이름1', '열이름2', as_index=False]) # 데이터프레임으로 결과 뽑을땐 as_index=False
+
 fill_func = lambda x: x.fillna(x.mean())
-df_1 = df.groupby('열이름').apply(fill_func)
+df_1 = df.groupby('열이름').apply(fill_func) # 그룹 평균값으로 대체
 
 
 데이터 연결
@@ -119,14 +126,16 @@ pd.merge(df1, df2') # 공통된 열끼리 병합 how='left right inner outer'
 
 
 스케일 변환
-* StandardScaler
+* StandardScaler # Z-score스케일 변환
 from sklearn.preprocessing import StandardScaler
 scaler = StandardScaler()
-df['열이름] = scaler.fit_transform(df[['열이름']]) #Z-score스케일 변환
-* MinMaxScaler
+df['열이름] = scaler.fit_transform(df [['열이름']]) # 괄호 2번 !!!
+
+* MinMaxScaler # MinMax스케일 변환
 from sklearn.preprocessing import MinMaxScaler
 scaler = MinMaxScaler()
-df['열이름'] = scaler.fit_transform(df[['열이름']]) #MinMax스케일 변환
+df['열이름'] = scaler.fit_transform(df[['열이름']])
+
 ```
 
 
