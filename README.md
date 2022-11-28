@@ -95,9 +95,10 @@ df['열이름'].drop_duplicates()
 df.dropna(subset=['열이름'], inplace=True) # 특정 열의 결측치 행 삭제
 df.drop(['열이름'], axis=1) # 특정 열 삭제
 
+
 전처리 
 디폴트값: axis=0, inplace=False
-df['열이름'].sort_values(by='열이름', ascending= TF)
+df['열이름'].sort_values(by='열이름', ascending= TF) # True오름차순, False내림차순 정렬
 df['열이름'].replace(대체될 값, 대체할 값)
 df['열이름'].replace({0 : '내가', 1 : '많이', 2 : '미안해'}) # 값에 따라 다른 값으로 대체
 df['열이름'].astype('타입명') # 타입 변환
@@ -107,8 +108,8 @@ df['rangeName'] = pd.qcut(df['열이름'], q=구간 개수, labels=['구간명1'
 
 
 그룹 나누기
-df.group_by('열이름').통계함수() 
--> df.group_by(['열이름1', '열이름2']).mean()
+df.groupby('열이름').통계함수() 
+→ df.groupby(['열이름1', '열이름2']).mean()
 
 a,b,c,d = df.groupby('city')['f1'].median() # 같은 열(city)의 특정 열(f1) 중앙값
 df['f1'] = df[(df['city']=='서울')]['f1'].fillna(a) 
