@@ -57,6 +57,11 @@ round(value, 자릿수) #반올림
 abs(value) #절댓값
 print("%.3f" % 변수) #소수점 출력
 
+# 이상치: IQR 범위 밖의 값
+Q1= df['열'].quantile(0.25)
+Q3= df['열'].quantile(0.75)
+Outlier= df[(df['열']<min)or(df['열']>max)]
+
 df.corr() #모든 변수 간 상관관계 계산하여 행렬 반환
 df.corr()['colName'] #특정 컬럼에 대한 상관관계
 df['colName1', 'colName2'].corr() #두 변수간의 상관관계 구할 때
