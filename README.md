@@ -350,17 +350,28 @@ print(mean_squared_error(y_test_m, pred))
 ```
 
 ####
-범주형 변수 분류 예측 구분하기~ 
-이거 또 틀리면 묭청이
+범주형 변수 분류 예측 구분하기~  또 틀리면 묭청이
 
 ![image](https://user-images.githubusercontent.com/85271084/204086247-e8181b71-57ca-4ee3-92ea-46829a5d0c3e.png)
 
+판다스
+import pandas as pd
+print(dir(pd)) # dir을 통해 사용 가능한 함수 확인
+print(dir(pd.DataFrame)) # 데이터프레임에서 할 수 있는 것들은?
+print(help(pd.DataFrame.drop)) # 데이터프레임에서 결측치 drop을 어떻게 사용했더라?
+
+사이킷런
+import sklearn
+print(sklearn.__all__)
+print(sklearn.preprocessing.__all__) # 전처리 무엇을 할 수 있지?
+print(help(sklearn.preprocessing.MinMaxScaler)) # 민맥스스케일 어떻게 사용하지?
+print(help(sklearn.ensemble.RandomForestClassifier())) # 랜덤포레스트 어떻게 썻더라? 
+
+▶ 해당 출력물을 메모장에 복사한 뒤 검색 기능을 활용에 문서 활용
 
 
 
 ## 단답형<a id="idx3"></a>
-
-
 
 ###
 
