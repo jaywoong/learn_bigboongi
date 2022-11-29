@@ -167,100 +167,56 @@ df['열이름'] = scaler.fit_transform(df[['열이름']])
 ## 2유형<a id="idx2"></a>
 
 ```python
-import pandas as pd
-df = pd.read_csv('house.csv')
-df.info() #연속형/범주형 변수 확인
+1. 데이터 나누기
+X = pd.read_csv("X_train.csv") # 훈련용
+y = pd.read_csv("y_train.csv") # 훈련용
+t = pd.read_csv("X_test.csv") # 테스트용
+연속형 or 범주형 변수 확인 head(), info()
 
-범주형 변수 one-hot-encoding으로 변환
-X_dum = pd.get_dummies(df['region']) #0,1,,로 나눔
-df = pd.concat([df, X_dum], axis=1) #데이터 통합
+훈련용 데이터
+X_num = X[['Customer_care_calls', 'Customer_rating', 'Cost_of_the_Product', 'Pri
+X_cat = X[['Warehouse_block', 'Mode_of_Shipment', 'Product_importance', 'Gender'
+X_cat = pd.get_dummies(X_cat)
 
-특성/레이블 데이터셋 나누기
-X = df[df.columns[0:3]] / X = df[['colName_1', 'colName_2', 'colName_3']]
-y = df[['colName']] 
-X.shape(), y.shape() #X,y 컬럼 제대로 나눴는지 확인
+테스트용 데이터
+t_num = t[['Customer_care_calls', 'Customer_rating', 'Cost_of_the_Product', 'Pri
+t_cat = t[['Warehouse_block', 'Mode_of_Shipment', 'Product_importance', 'Gender'
+t_cat = pd.get_dummies(t_cat)
 
-훈련(학습)/테스트 데이터 나누기
-from sklearn.model_selection import train_test_split
-X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=42) #split할 떄 변수 쓰는 순서 꼭 지키기
-X_train.shape(), X_test.shape() #훈련/테스트데이터 제대로 나눴는지 확인
+원핫인코딩한 범주형 변수들 합치기
+X_cat, t_cat = X_cat.align(t_cat, join='inner', axis=1)
 
-데이터 정규화 - 연속형
-1. Min-Max
+
+2. 연속형 변수 스케일링
 from sklearn.preprocessing import MinMaxScaler
-scaler_minmax = MinMaxScaler()
-scaler_minmax.fit(X_train) #fit은 학습데이터로 해야됨
-X_scaled_minmax_train = scaler_minmax.transform(X_train)
-X_scaled_minmax_test = scaler_minmax.transform(X_test)
-
-2. Standardization
-scaler_standard = StandardScaler()
-scaler_standard.fit(X_train)
-X_scaled_standard_train = scaler_standard.transform(X_train)
+minmax = MinMaxScaler()
+minmax.fit(X_num) # fit은 훈련용으로!!
+X_scaled = minmax.transform(X_num)
+t_scaled = minmax.transform(t_num)
 
 
-모델 학습
-1. 선형 회귀
-from sklearn.linear_model import LinearRegression
-model = LinearRegression()
-model.fit(X_scaled_minmax_train, y_train)
+3. 최종 데이터 (연속형+범주형)
+X_train = pd.concat([ pd.DataFrame(X_scaled), X_cat ], axis=1) #데이터프레임을 붙
+X_test = pd.concat([ pd.DataFrame(t_scaled), t_cat ], axis=1)
+y_train = y['Reached.on.Time_Y.N']
 
-2. 로지스틱 회귀
+
+4. 모델 적용 (훈련용 데이터)
 from sklearn.linear_model import LogisticRegression
 model = LogisticRegression()
-model.fit(X_scaled_minmax_train, y_train)
-
-3. 랜덤포레스트
-from sklearn.ensemble import RandomForestRegressor
-model = RandomForestRegressor()
-model.fit(X_scaled_train, y_train)
+model.fit(X_train, y_train) #fit은 훈련용으로!!!
 
 
-모델 적용 & 예측
-pred_train = model.predict(X_scaled_minmax_train)
-pred_test = model.predict(X_scaled_minmax_test)
+5. 결과 예측 (테스트용 데이터)
+pred_val = model.predict_proba(X_test)[:, 1] #참인 확률 값만 가져오기 (0:False, 1:True)
+pred_df = pd.DataFrame(pred, columns=['pred_df']) #데이터프레임으로 만들기
+pred_final = pd.concat([test['ID'], pred_df], axis=1) #붙이기
 
 
-정확도 확인
-1. R-square 설명력
-model.score(X_scaled_minmax_train, y_train) #훈련데이터
-model.score(X_scaled_minmax_test, y_test) #테스트데이터
+6. 제출
+pred_final.to_csv("20220625.csv", index=False) #인덱스 빼기
 
-2. RMSE
-import numpy as np
-from sklearn.metrics import mean_squared_error 
-MSE_train = mean_squared_error(y_train, pred_train)
-MSE_test = mean_squared_error(y_test, pred_test)
-print("훈련데이터 RMSE:", np.sqrt(MSE_train))
-print("테스트데이터 RMSE:", np.sqrt(MSE_test)
-
-3. 상세 평가지표
-from sklearn.metrics import classification_report
-cfreport_train = classification_report(y_train, pred_train)
-print("분류예측 레포트:\n", cfreport_train)
-
-
-교차검증
-1. cross_val_score : 랜덤 없음
-from sklearn.model_selection import cross_val_score
-scores = cross_val_score(model, X_train, y_train, cv=5)
-print("5개 테스트 셋 정확도:", scores)
-print("정확도 평균:", scores.mean())
-
-2. KFold : 랜덤 있음
-from sklearn.model_selection import KFold
-kfold = KFold(n_splits=5, shuffle=True, random_state=42)
-score = cross_val_score(model, X_train, y_train, cv=kfold)
-print("5개 폴드의 정확도:", scores)
-
-3. ShuffleSplit : 임의 분할
-from sklearn.model_selection import ShuffleSplit
-shuffle_split = ShuffleSplit(test_size=0.5, train_size=0.5, random_state=42)
-score = cross_val_score(model, X_train, y_train, cv=shuffle_split)
-print("교차검증 정확도:", scores)
-
-```
-
+'''
 
 ```python
 import pandas as pd
@@ -352,6 +308,80 @@ print(mean_squared_error(y_test_m, pred))
 범주형 변수 분류 예측 구분하기~  또 틀리면 묭청이
 
 ![image](https://user-images.githubusercontent.com/85271084/204086247-e8181b71-57ca-4ee3-92ea-46829a5d0c3e.png)
+
+
+'''python
+데이터 정규화 - 연속형
+1. Min-Max
+from sklearn.preprocessing import MinMaxScaler
+scaler_minmax = MinMaxScaler()
+scaler_minmax.fit(X_train) #fit은 학습데이터로 해야됨
+X_scaled_minmax_train = scaler_minmax.transform(X_train)
+X_scaled_minmax_test = scaler_minmax.transform(X_test)
+
+2. Standardization
+scaler_standard = StandardScaler()
+scaler_standard.fit(X_train)
+X_scaled_standard_train = scaler_standard.transform(X_train)
+
+
+모델 학습
+1. 선형 회귀
+from sklearn.linear_model import LinearRegression
+model = LinearRegression()
+model.fit(X_scaled_minmax_train, y_train)
+
+2. 로지스틱 회귀
+from sklearn.linear_model import LogisticRegression
+model = LogisticRegression()
+model.fit(X_scaled_minmax_train, y_train)
+
+3. 랜덤포레스트
+from sklearn.ensemble import RandomForestRegressor
+model = RandomForestRegressor()
+model.fit(X_scaled_train, y_train)
+
+
+정확도 확인
+1. R-square 설명력
+model.score(X_scaled_minmax_train, y_train) #훈련데이터
+model.score(X_scaled_minmax_test, y_test) #테스트데이터
+
+2. RMSE
+import numpy as np
+from sklearn.metrics import mean_squared_error 
+MSE_train = mean_squared_error(y_train, pred_train)
+MSE_test = mean_squared_error(y_test, pred_test)
+print("훈련데이터 RMSE:", np.sqrt(MSE_train))
+print("테스트데이터 RMSE:", np.sqrt(MSE_test)
+
+3. 상세 평가지표
+from sklearn.metrics import classification_report
+cfreport_train = classification_report(y_train, pred_train)
+print("분류예측 레포트:\n", cfreport_train)
+
+
+교차검증
+1. cross_val_score : 랜덤 없음
+from sklearn.model_selection import cross_val_score
+scores = cross_val_score(model, X_train, y_train, cv=5)
+print("5개 테스트 셋 정확도:", scores)
+print("정확도 평균:", scores.mean())
+
+2. KFold : 랜덤 있음
+from sklearn.model_selection import KFold
+kfold = KFold(n_splits=5, shuffle=True, random_state=42)
+score = cross_val_score(model, X_train, y_train, cv=kfold)
+print("5개 폴드의 정확도:", scores)
+
+3. ShuffleSplit : 임의 분할
+from sklearn.model_selection import ShuffleSplit
+shuffle_split = ShuffleSplit(test_size=0.5, train_size=0.5, random_state=42)
+score = cross_val_score(model, X_train, y_train, cv=shuffle_split)
+print("교차검증 정확도:", scores)
+
+```
+
 
 ```python
 판다스
