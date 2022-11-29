@@ -164,6 +164,7 @@ df['열이름'] = scaler.fit_transform(df[['열이름']])
 ```
 
 
+
 ## 2유형<a id="idx2"></a>
 
 ```python
@@ -215,8 +216,7 @@ pred_final = pd.concat([test['ID'], pred_df], axis=1) #붙이기
 
 6. 제출
 pred_final.to_csv("20220625.csv", index=False) #인덱스 빼기
-
-'''
+```
 
 ```python
 import pandas as pd
@@ -310,7 +310,7 @@ print(mean_squared_error(y_test_m, pred))
 ![image](https://user-images.githubusercontent.com/85271084/204086247-e8181b71-57ca-4ee3-92ea-46829a5d0c3e.png)
 
 
-'''python
+```python
 데이터 정규화 - 연속형
 1. Min-Max
 from sklearn.preprocessing import MinMaxScaler
@@ -399,6 +399,8 @@ print(help(sklearn.ensemble.RandomForestClassifier())) # 랜덤포레스트 어�
 
 ▶ 해당 출력물을 메모장에 복사한 뒤 검색 기능을 활용에 문서 활용
 ```
+
+
 
 
 ## 단답형<a id="idx3"></a>
