@@ -338,14 +338,13 @@ print(mean_squared_error(y_test_m, pred))
 
 
 
-'''
+
 점수 낮으면
 1. train_test_split에 random_state 바꾸기 
 2. RandomForestClassifier의 max_depth 바꾸기
 3. 결측치가 많거나 클래스가 다양한 컬럼 제거
 4. MinMaxScaler -> StandardScaler 바꾸기 
 5. Encoder 바꾸기
-'''
 
 ```
 
@@ -354,6 +353,7 @@ print(mean_squared_error(y_test_m, pred))
 
 ![image](https://user-images.githubusercontent.com/85271084/204086247-e8181b71-57ca-4ee3-92ea-46829a5d0c3e.png)
 
+```python
 판다스
 import pandas as pd
 print(dir(pd)) # dir을 통해 사용 가능한 함수 확인
@@ -368,7 +368,7 @@ print(help(sklearn.preprocessing.MinMaxScaler)) # 민맥스스케일 어떻게 �
 print(help(sklearn.ensemble.RandomForestClassifier())) # 랜덤포레스트 어떻게 썻더라? 
 
 ▶ 해당 출력물을 메모장에 복사한 뒤 검색 기능을 활용에 문서 활용
-
+```
 
 
 ## 단답형<a id="idx3"></a>
