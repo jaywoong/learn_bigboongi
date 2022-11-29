@@ -24,7 +24,7 @@ import numpy as np
 df= pd.read_csv('데이터셋 위치경로')
 
 
-데이터프레임 정보 확인
+정보 확인
 df.shape # (행 개수, 열 개수) df.shape[0] 행 개수, df.shape[1] 열 개수
 len(df) # 결측치 포함한 행 개수
 df.count() # 결측치 제외한 행 개수
@@ -86,36 +86,41 @@ df.isnull().sum() # 열별 결측치 개수
 df['열이름'].isnull().sum() # 특정 열 결측치 개수
 df.count(), df.shape[0] # 열별 데이터 개수
 
+df['열이름'].dropna() # axis=0 행 삭제, axis=1 열 삭제
+df.dropna(★subset=['열이름'], inplace=True) # 특정 열의 결측치 행 삭제
+
 df.fillna(method= 'ffill','bfill') # 결측치를 ffill이전 값으로 대체, bfill이후 값으로 대체
 df['열이름'].fillna(df.mean()['열이름']) # 결측치를 특정 열의 평균값으로 대체
+
 df['열이름']= df['열이름'].fillna(df['분류 기준 열'].map({'쟈갸': 0, '고마워': 1, '많이' : 2, '반성해' : 4})) # 분류 기준별 다른 값으로 결측치 대체 (도시별 중앙값 대체 예제)
 df['f1']= df[(df['city']=='서울')]['f1'].fillna(a) 
 df['f1'].fillna(df['city'].map({'서울':s,'경기':k,'부산':b,'대구':d}))
 
 
-df.drop(axis=0행/1열, index='행이름', columns='열이름', inplace=True) # 행/열 삭제
-df['열이름'].dropna() # axis=0 행 삭제, axis=1 열 삭제
-df.dropna(subset=['열이름'], inplace=True) # 특정 열의 결측치 행 삭제
-df['열이름'].drop_duplicates() # 내용이 중복되는 행 제거
-
 
 전처리 
-디폴트값: axis=0, inplace=False(원본 변경 여부)
+디폴트: axis=0(행), inplace=False(원본 변경 안함)
 df.sort_values(by='정렬기준 열', ascending=True, inplace=False) # T오름차순, F내림차순
 df.sort_values(by=['열1','열2']) # 열1 기준 정렬 후 같은 값은 열2 기준 
 df['열이름'].sort_values() # 해당 열만 정렬(series)
 df.sort_index(by='정렬기준 행', ascending= TF) 
+
+df.drop(axis=0행/1열, index='행이름', ★columns='열이름', inplace=True) # 행/열 삭제
+df.drop(df[df['age']-np.floor(df['age'])!=0].index★, inplace=True) # 조건에 해당하는 행 삭제
+df.drop_duplicates(subset='열이름') # 내용이 중복되는 행 제거
+
 df['열이름'].replace(대체될 값, 대체할 값)
-df['열이름'].replace({0 : '내가', 1 : '많이', 2 : '미안해'}) # 값에 따라 다른 값으로 대체
+df['열이름'].replace({0: '내가', 1: '많이', 2: '미안해'}) # 값에 따라 다른 값으로 대체
+
 df['열이름'].astype('타입명') # 타입 변환
 
 
-df['열이름']= pd.to_datetime( ★df['열이름']) # datetime으로 타입 변환.
+df['열이름']= ★pd.to_datetime( ★df['열이름']) # datetime으로 타입 변환.
 df['열이름'].dt.year,month,day # 연도,월,일을 반환
 df['열이름'].dt.dayofweek # 월요일~일요일을 0~6으로 반환
+df.resample(rule, axis=0) # Datetime Index를 원하는 주기로 나눔. rule='W' 1주, '2W' 2주, 'M' 월
 
-
-df['rangeName'] = pd.qcut(df['열이름'], q=구간 개수, labels=['구간명1', '구간명2', ]) # q개씩 균등하게 분할
+df['새로 생성할 열이름']= ★pd.qcut(df['기준 열이름'], ★q=구간 개수, ★labels=['구간명1', '구간명2',,,]) # q개씩 균등하게 분할
 
 
 그룹 나누기
@@ -123,7 +128,7 @@ df.groupby('그룹기준 열')['계산할 열'].통계함수()
 df.groupby('이름')['휴일'].sum() # 인당 남은 휴가의 총합
 df.groupby('월')['휴일'].max() # 월별 남은 휴가의 최대
 df.groupby(['월', '이름']).agg({'휴일':'mean', '야근':'sum'}) # 월별 인당 휴일 평균, 야근 총합
-df.groupby(['열이름1', '열이름2']).mean() #열1,2별 평균
+df.groupby(★['열이름1', '열이름2'])★[['열이름3']].mean() #열1,2별 열3 평균
 
 a,b,c,d= df.groupby('city')['f1'].median() # 같은 열(city)의 특정 열(f1) 중앙값
 df= df.group_by(['열이름1', '열이름2', as_index=False]) # 데이터프레임으로 결과 뽑을땐 as_index=False
@@ -133,8 +138,9 @@ df_1= df.groupby('열이름').apply(fill_func) # 그룹 평균값으로 대체
 
 
 데이터 연결
-pd.concat( ★[df1, df2], axis=0) # axis=0 행 방향(밑에 붙임), axis=1 열 방향(옆에 붙임)
-pd.merge( ★df1, df2) # 공통된 열끼리 병합 how='left right inner outer'
+★pd.concat( ★[df1, df2], axis=0) # axis=0 행 방향(밑에 붙임), axis=1 열 방향(옆에 붙임)
+★pd.merge( ★df_left, df_right, how='inner', on='병합 기준 열') # 공통된 열끼리 병합. NaN값이 적은 df를 기준으로 병합 how=left, right, inner, outer
+
 
 행열 이름 지정
 df.set_index() # 인덱스명 부여
