@@ -6,11 +6,13 @@
 >
 > **[단답형](#idx3)**
 
+
 ___
 
 
 
-## 1유형<a id="idx1"></a>
+
+# 1유형<a id="idx1"></a>
 
 ```python
 pd.set_option('display.max_columns',None)
@@ -165,7 +167,7 @@ df['열이름'] = scaler.fit_transform(df[['열이름']])
 
 
 
-## 2유형<a id="idx2"></a>
+# 2유형<a id="idx2"></a>
 
 ```python
 1. 데이터 나누기
@@ -403,8 +405,8 @@ print(help(sklearn.ensemble.RandomForestClassifier())) # 랜덤포레스트 어�
 
 
 
-## 단답형<a id="idx3"></a>
+# 단답형<a id="idx3"></a>
 
-###
+##
 
 ```
