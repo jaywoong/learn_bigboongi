@@ -1,8 +1,8 @@
 # learn_bigboongi
 
-> **[1유형](#idx1)** 
+> **[작업형 1유형](#idx1)** 
 >
-> **[2유형](#idx2)**
+> **[작업형 2유형](#idx2)**
 >
 > **[단답형](#idx3)**
 
@@ -10,9 +10,7 @@
 ___
 
 
-
-
-# 1유형<a id="idx1"></a>
+# 작업형 1유형<a id="idx1"></a>
 
 ```python
 pd.set_option('display.max_columns',None)
@@ -122,8 +120,6 @@ df['열이름'].dt.year,month,day # 연도,월,일을 반환
 df['열이름'].dt.dayofweek # 월요일~일요일을 0~6으로 반환
 df.resample(rule, axis=0) # Datetime Index를 원하는 주기로 나눔. rule='W' 1주, '2W' 2주, 'M' 월
 
-df['새로 생성할 열이름']= ★pd.qcut(df['기준 열이름'], ★q=구간 개수, ★labels=['구간명1', '구간명2',,,]) # q개씩 균등하게 분할
-
 
 그룹 나누기
 df.groupby('그룹기준 열')['계산할 열'].통계함수() 
@@ -134,6 +130,8 @@ df.groupby(★['열이름1', '열이름2'])★[['열이름3']].mean() #열1,2별
 
 a,b,c,d= df.groupby('city')['f1'].median() # 같은 열(city)의 특정 열(f1) 중앙값
 df= df.group_by(['열이름1', '열이름2', as_index=False]) # 데이터프레임으로 결과 뽑을땐 as_index=False
+
+df['새로 생성할 열이름']= ★pd.qcut(df['기준 열이름'], ★q=구간 개수, ★labels=['구간명1', '구간명2',,,]) # q개씩 균등하게 분할
 
 fill_func= lambda x: x.fillna(x.mean())
 df_1= df.groupby('열이름').apply(fill_func) # 그룹 평균값으로 대체
@@ -153,12 +151,12 @@ df.reset_index(drop=True, inplace=True)
 
 
 스케일 변환
-* StandardScaler # Z-score스케일 변환
+* StandardScaler: Z-score스케일 변환
 from sklearn.preprocessing import StandardScaler
 scaler = StandardScaler()
 df['열이름] = scaler.fit_transform(df★[['열이름']]) # 괄호 2번 !!!
 
-* MinMaxScaler # MinMax스케일 변환
+* MinMaxScaler:  MinMax스케일 변환
 from sklearn.preprocessing import MinMaxScaler
 scaler = MinMaxScaler()
 df['열이름'] = scaler.fit_transform(df[['열이름']])
@@ -167,7 +165,162 @@ df['열이름'] = scaler.fit_transform(df[['열이름']])
 
 
 
-# 2유형<a id="idx2"></a>
+# 작업형 2유형<a id="idx2"></a>
+## Jaywoong
+```python
+import pandas as pd
+import numpy as np
+from sklearn.preprocessing import *
+from sklearn.model_selection import *
+from sklearn.ensemble import *
+from sklearn.metrics import *
+
+
+1. 연속형/범주형 변수 구분
+X_train.info()
+X_train.head()
+X_train = X_train.drop(['Name','Ticket','Cabin','Fare','Embarked'], axis=1) # 불필요한 열 제거. 결측값 있는 열 제거
+X_test = X_test.drop(['Name','Ticket','Cabin','Fare','Embarked'], axis=1)
+
+
+
+2. 범주형 변수 처리
+X_train['범주형변수'].nunique()
+X_train.isnull().sum()  # df['col'].fillna() or df = df.drop('col')
+
+2-1. nunique() 20이하
+: 원핫인코딩 → 각 데이터별로 새로운 열 생성 (Sex→ Sex_Female, Sex_Male, 데이터는 T/F 0/1)
+X_train_onehot = pd.get_dummies(X_train['Sex']) # 숫자 아닌 범주형변수 
+X_test_onehot = pd.get_dummies(X_test['Sex'])
+
+2-2. unique() 20이상 (100이상은 열drop) 
+: 라벨인코딩 → 데이터를 0,1,2,3,, 로 라벨링. concat 필요없음
+le = LabelEncoder()
+le = le.fit(X_train['col'])  # X_train['col']을 fit
+X_train['col'] = le.transform(X_train['col'])  # X_train['col']에 따라 encoding
+X_test['col'] = le.atransform(X_test['col'])  # X_test['col']에 따라 encoding
+
+
+
+3. 연속형 변수 스케일링
+X_train_num = X_train.drop(['Sex'], axis=1) # 범주형 변수 제외
+X_test_num = X_test.drop(['Sex'], axis=1)
+
+MinMaxScaler
+scaler = MinMaxScaler()
+scaler.fit(X_train) # fit은 학습데이터로 해야됨
+X_train_scaled = scaler.transform(X_train_num)
+X_test_scaled = scaler.transform(X_test_num)
+
+결과 안 좋으면 StandardScaler
+scaler = StandardScaler()
+scaler.fit(X_train_num)
+X_train_scaled = scaler.transform(X_train_num)
+X_test_scaled = scaler.transform(X_test_num)
+
+
+
+4. 데이터 결합
+X_train_concat = pd.concat([X_train_num, X_train_onehot], axis=1)
+X_test_concat = pd.concat([X_test_num, X_test_onehot], axis=1)
+
+
+++ 모델 성능 확인
+from sklearn.model_selection import train_test_split
+X_train_val, X_test_val, y_train_val, y_test_val = train_test_split(X_train, y_train, random_state=200)
+
+from sklearn.ensemble import RandomForestClassifier 
+model = RandomForestClassifier(max_depth = 10, random_state = 5)
+model.fit(X_train_val, y_train_val)
+pred_val = model.predict_proba(X_test_val)[:,1]
+
+from sklearn.metrics import roc_auc_score        
+print(roc_auc_score(y_test_val, pred_val))
+
+
+
+5. 모델 생성
+y_train.info() # 결측치 확인
+y = y_train["Survived"]
+
+5-1. 분류:  y가 범주형 변수
+from sklearn.ensemble import RandomForestClassifier
+model = RandomForestClassifier(max_depth = 10, random_state = 5)
+model.fit(X_train_concat, y)
+
+
+5-2. 회귀:  y가 연속형 변수
+from sklearn.ensemble import RandomForestRegressor  
+model = RandomForestRegressor(max_depth = 10, random_state = 5)
+model.fit(X_train_concat, y)
+
+
+
+6. 예측 → 답 제출 형식이 결정 
+6-1. predict
+: 결과값. 이진분류(참/거짓 어디에 해당), 다중분류(어느 시장/범위에 속할지 예측해라)
+pred = model.predict(X_test)   #결과값 (이진분류 참, 거짓 반환) (다중분류 집단 번호 반환)
+
+
+6-2. predict_proba
+: 확률값. 이진분류(참/거짓일 확률), 다중분류(특정 시장/범위에 속할 확률을 예측해라)
+pred = model.predict_proba(X_test)[:, 1]   # 확률값 (이진분류0=거짓, 1=참) (다중분류 각 집단의 순서에 맞게)
+
+
+
+7. 예측값 검사
+7-1. 분류
+from sklearn.metrics import roc_auc_score
+print(roc_auc_score(y, pred))
+
+7-2. 회귀
+from sklearn.metrics import mean_squared_error
+print(mean_squared_error(y, pred))
+
+
+
+8. 답 제출
+answer = pd.DataFrame({ 'PassengerId': X_test_concat.PassengerId, 'Survived': pred }) # 데이터프레임생성, { '열이름1': 값1, '열이름2': 값2, , ,'열이름8': 값8 }  
+answer.to_csv('003000000.csv', index=False) # 데이터프레임 인덱스 삭제하고 제출
+
+
+
+** 모델 점수 낮으면
+1. RandomForestClassifier의 max_depth 바꾸기
+2. 결측치가 많거나 클래스가 다양한 컬럼 제거
+3. MinMaxScaler -> StandardScaler 바꾸기 
+4. Encoder 바꾸기
+5. train_test_split에 random_state 바꾸기 
+
+
+```
+
+
+### 범주형 변수 분류predict 예측predict_proba 구분하기~
+
+![image](https://user-images.githubusercontent.com/85271084/204086247-e8181b71-57ca-4ee3-92ea-46829a5d0c3e.png)
+
+### Dir, Help
+```python
+판다스
+import pandas as pd
+print(dir(pd)) # dir을 통해 사용 가능한 함수 확인
+print(dir(pd.DataFrame)) # 데이터프레임에서 할 수 있는 것들은?
+print(help(pd.DataFrame.drop)) # 데이터프레임에서 결측치 drop을 어떻게 사용했더라?
+
+사이킷런
+import sklearn
+print(sklearn.__all__)
+print(sklearn.preprocessing.__all__) # 전처리 무엇을 할 수 있지?
+print(help(sklearn.preprocessing.MinMaxScaler)) # 민맥스스케일 어떻게 사용하지?
+print(help(sklearn.ensemble.RandomForestClassifier())) # 랜덤포레스트 어떻게 썻더라? 
+
+▶ 해당 출력물을 메모장에 복사한 뒤 검색 기능을 활용에 문서 활용
+```
+
+
+
+## mmeooo
 
 ```python
 1. 데이터 나누기
@@ -222,120 +375,7 @@ pred_final.to_csv("20220625.csv", index=False) #인덱스 빼기
 
 
 ```python
-import pandas as pd
-import numpy as np
-
-from sklearn.preprocessing import *
-from sklearn.model_selection import *
-from sklearn.ensemble import *
-from sklearn.metrics import *
-
-1. 연속형/범주형 변수 구분
-X_train.info()
-X_train.head()
-X_train = X_train.drop(['Name','Ticket','Cabin','Fare','Embarked'], axis=1) # 불필요한 열 제거
-X_test = X_test.drop(['Name','Ticket','Cabin','Fare','Embarked'], axis=1)
-
-2. 범주형 변수 처리
-X_train['범주형변수'].nunique()
-X_train.isnull().sum() # df['col'].fillna() or df = df.drop('col')
-
-2-1. nunique() 20이하
-: 원핫인코딩 → 각 데이터별로 새로운 열 생성 (Sex→ Sex_Female, Sex_Male, 데이터는 0,1)
-X_train_onehot = pd.get_dummies(df_train['숫자 아닌 범주형변수 Sex'])
-X_test_onehot = pd.get_dummies(X_test['Sex'])
-X_train_concat = pd.concat([X_train, X_train_onehot], axis=1)
-X_train_concat.drop(['Sex'], axis=1, inplace=True)
-
-
-2-2. unique() 20이상(100이상은 열drop) 
-: 라벨인코딩 → 데이터를 0,1,2,3,,로 라벨링. concat 필요없음
-le = LabelEncoder()
-le = le.fit(X_train['col'])   #X_train['col']을 fit
-X_train['col'] = le.transform(X_train['col'])   # X_train['col']에 따라 encoding
-X_test['col'] = le.atransform(X_test['col'])   # X_test['col']에 따라 encoding
-
-#ID 컬럼 추출 후 제거
-
-
-3. 연속형 변수 스케일링
-MinMaxScaler
-scaler = MinMaxScaler()
-scaler.fit(X_train) #fit은 학습데이터로 해야됨
-X_train_scaled = scaler.transform(X_train)
-X_test_scaled = scaler.transform(X_test)
-
-결과 안 좋으면 StandardScaler
-scaler = StandardScaler()
-scaler.fit(X_train)
-X_train_scaled = scaler_standard.transform(X_train)
-X_test_scaled = scaler_standard.transform(X_test)
-
-
-(+ 모델 성능 확인)
-from sklearn.model_selection import train_test_split
-X_train_val, X_test_val, y_train_val, y_test_val = train_test_split(X_train, y_train, random_state=200)
-
-from sklearn.ensemble import RandomForestClassifier 
-rf = RandomForestClassifier(max_depth = 10, random_state = 5)
-rf.fit(X_train_val, y_train_val)
-pred_val = rf.predict_proba(X_test_val)[:,1]
-
-from sklearn.metrics import roc_auc_score        
-print(roc_auc_score(y_test_val, pred_val))
-
-
-4. 모델 생성
-4-1. 분류 :  y가 범주형 변수
-from sklearn.ensemble import RandomForestClassifier
-rf = RandomForestClassifier(max_depth = 10, random_state = 5)
-rf.fit(X_train, y_train)
-
-from sklearn.metrics import roc_auc_score  # 분류 검사
-print(roc_auc_score(y_test_m, pred))
-
-
-4-2. 회귀 :  y가 연속형 변수
-from sklearn.ensemble import RandomForestRegressor  
-rf = RandomForestRegressor(max_depth = 10, random_state = 5)
-rf.fit(X_train, y_train)
-
-from sklearn.metrics import mean_squared_error   # 회귀 검사
-print(mean_squared_error(y_test_m, pred))
-
-
-5. 예측 : 답 제출 형식(문제에서 줌)이 결정 
-5-1. predict : 결과값. 이진분류(참/거짓 어디에 해당), 다중분류(어느 시장/범위에 속할지 예측해라)
-pred = rf.predict(X_test)   #결과값  (이진분류 참, 거짓 반환) (다중분류 집단 번호 반환)
-
-
-5-2. predict_proba: 확률값. 이진분류(참/거짓일 확률), 다중분류(특정 시장/범위에 속할 확률을 예측해라)
-pred = rf.predict_proba(X_test)[:, 1]   # 확률값 (이진분류0=거짓, 1=참) (다중분류 각 집단의 순서에 맞게)
-
-
-6. 답 제출
-answer= pd.DataFrame({ 'PassengerId': X_test_concat.PassengerId, 'Survived': pred }) # 데이터프레임생성, { '열이름1': 값1, '열이름2': 값2, , ,'열이름8': 값8 }  
-answer.to_csv('003000000.csv', index=False) # 데이터프레임 인덱스 삭제하고 제출
-
-
-
-모델 점수 낮으면
-1. train_test_split에 random_state 바꾸기 
-2. RandomForestClassifier의 max_depth 바꾸기
-3. 결측치가 많거나 클래스가 다양한 컬럼 제거
-4. MinMaxScaler -> StandardScaler 바꾸기 
-5. Encoder 바꾸기
-
-```
-
-####
-범주형 변수 분류 예측 구분하기~  또 틀리면 묭청이
-
-![image](https://user-images.githubusercontent.com/85271084/204086247-e8181b71-57ca-4ee3-92ea-46829a5d0c3e.png)
-
-
-```python
-데이터 정규화 - 연속형
+데이터 정규화: 연속형
 1. Min-Max
 from sklearn.preprocessing import MinMaxScaler
 scaler_minmax = MinMaxScaler()
@@ -404,24 +444,6 @@ shuffle_split = ShuffleSplit(test_size=0.5, train_size=0.5, random_state=42)
 score = cross_val_score(model, X_train, y_train, cv=shuffle_split)
 print("교차검증 정확도:", scores)
 
-```
-
-
-```python
-판다스
-import pandas as pd
-print(dir(pd)) # dir을 통해 사용 가능한 함수 확인
-print(dir(pd.DataFrame)) # 데이터프레임에서 할 수 있는 것들은?
-print(help(pd.DataFrame.drop)) # 데이터프레임에서 결측치 drop을 어떻게 사용했더라?
-
-사이킷런
-import sklearn
-print(sklearn.__all__)
-print(sklearn.preprocessing.__all__) # 전처리 무엇을 할 수 있지?
-print(help(sklearn.preprocessing.MinMaxScaler)) # 민맥스스케일 어떻게 사용하지?
-print(help(sklearn.ensemble.RandomForestClassifier())) # 랜덤포레스트 어떻게 썻더라? 
-
-▶ 해당 출력물을 메모장에 복사한 뒤 검색 기능을 활용에 문서 활용
 ```
 
 
