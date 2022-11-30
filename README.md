@@ -272,7 +272,7 @@ X_train_scaled = scaler_standard.transform(X_train)
 X_test_scaled = scaler_standard.transform(X_test)
 
 
-4. 모델 성능 확인
+(+ 모델 성능 확인)
 from sklearn.model_selection import train_test_split
 X_train_val, X_test_val, y_train_val, y_test_val = train_test_split(X_train, y_train, random_state=200)
 
@@ -285,29 +285,36 @@ from sklearn.metrics import roc_auc_score
 print(roc_auc_score(y_test_val, pred_val))
 
 
-5. 분류
-from sklearn.ensemble import RandomForestClassifier   #분류
+4. 모델 생성
+4-1. 분류 :  y가 범주형 변수
+from sklearn.ensemble import RandomForestClassifier
 rf = RandomForestClassifier(max_depth = 10, random_state = 5)
 rf.fit(X_train, y_train)
-pred = rf.predict_proba(X_test)[:,1]   #확률값 (이진분류 0 = 거짓, 1 = 참) (다중분류 각 집단의 순서에 맞게)
-pred = rf.predict(X_test)   #결과값  (이진분류 참, 거짓 반환) (다중분류 집단 번호 반환)
 
-from sklearn.metrics import roc_auc_score   #분류 검사
+from sklearn.metrics import roc_auc_score  # 분류 검사
 print(roc_auc_score(y_test_m, pred))
 
-# ------------------------------- 회귀 ------------------------------------------------
 
-from sklearn.ensemble import RandomForestRegressor  #회귀 모델링
+4-2. 회귀 :  y가 연속형 변수
+from sklearn.ensemble import RandomForestRegressor  
 rf = RandomForestRegressor(max_depth = 10, random_state = 5)
 rf.fit(X_train, y_train)
-pred = rf.predict(X_test)   #결과값 (각 고객이 다음 방문에 얼마를 소비할지 반환)
 
-from sklearn.metrics import mean_squared_error   #회귀 검사
+from sklearn.metrics import mean_squared_error   # 회귀 검사
 print(mean_squared_error(y_test_m, pred))
 
 
+5. 답 제출 형식에 따른 예측값
+5-1. predict : 결과값. 이진분류(참/거짓 어디에 해당), 다중분류(어느 시장/범위에 속할지 예측해라)
+pred = rf.predict_proba(X_test)[:, 1]   # 확률값 (이진분류0=거짓, 1=참) (다중분류 각 집단의 순서에 맞게)
 
-점수 낮으면
+5-2. predict_proba: 확률값. 이진분류(참/거짓일 확률), 다중분류(특정 시장/범위에 속할 확률을 예측해라)
+pred = rf.predict(X_test)   #결과값  (이진분류 참, 거짓 반환) (다중분류 집단 번호 반환)
+
+
+
+
+모델 점수 낮으면
 1. train_test_split에 random_state 바꾸기 
 2. RandomForestClassifier의 max_depth 바꾸기
 3. 결측치가 많거나 클래스가 다양한 컬럼 제거
