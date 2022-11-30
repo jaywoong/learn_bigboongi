@@ -304,13 +304,18 @@ from sklearn.metrics import mean_squared_error   # 회귀 검사
 print(mean_squared_error(y_test_m, pred))
 
 
-5. 답 제출 형식에 따른 예측값
+5. 예측 : 답 제출 형식(문제에서 줌)이 결정 
 5-1. predict : 결과값. 이진분류(참/거짓 어디에 해당), 다중분류(어느 시장/범위에 속할지 예측해라)
-pred = rf.predict_proba(X_test)[:, 1]   # 확률값 (이진분류0=거짓, 1=참) (다중분류 각 집단의 순서에 맞게)
-
-5-2. predict_proba: 확률값. 이진분류(참/거짓일 확률), 다중분류(특정 시장/범위에 속할 확률을 예측해라)
 pred = rf.predict(X_test)   #결과값  (이진분류 참, 거짓 반환) (다중분류 집단 번호 반환)
 
+
+5-2. predict_proba: 확률값. 이진분류(참/거짓일 확률), 다중분류(특정 시장/범위에 속할 확률을 예측해라)
+pred = rf.predict_proba(X_test)[:, 1]   # 확률값 (이진분류0=거짓, 1=참) (다중분류 각 집단의 순서에 맞게)
+
+
+6. 답 제출
+answer= pd.DataFrame({ 'PassengerId': X_test_concat.PassengerId, 'Survived': pred }) # 데이터프레임생성, { '열이름1': 값1, '열이름2': 값2, , ,'열이름8': 값8 }  
+answer.to_csv('003000000.csv', index=False) # 데이터프레임 인덱스 삭제하고 제출
 
 
 
