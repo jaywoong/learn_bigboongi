@@ -229,10 +229,14 @@ from sklearn.model_selection import *
 from sklearn.ensemble import *
 from sklearn.metrics import *
 
-df.info()
-df.head()
-df['col'].nunique()
-df.isnull().sum() #df['col'].fillna() or df = df.drop('col')
+1. 연속형/범주형 변수 구분
+X_train.info()
+X_train.head()
+
+
+2. 범주형 변수 처리
+X_train['범주형변수'].nunique()
+X_train.isnull().sum() #df['col'].fillna() or df = df.drop('col')
 
 #.nunique() 20이하
 df_train = pd.get_dummies(df_train)
@@ -242,12 +246,13 @@ print(df_test.shape)
 
 #.unique() 20이상 (100이상은 컬럼 drop)
 le = LabelEncoder()
-le = le.fit(train['col'])   #train['col']을 fit
-train['col'] = le.transform(train['col'])   #train['col']에 따라 encoding
-test['col'] = le.transform(test['col'])   #train['col']에 따라 encoding
+le = le.fit(X_train['col'])   #X_train['col']을 fit
+X_train['col'] = le.transform(X_train['col'])   #X_train['col']에 따라 encoding
+X_test['col'] = le.transform(X_test['col'])   #X_test['col']에 따라 encoding
 
 #ID 컬럼 추출 후 제거
 
+3. 연속형 변수 스케일링
 #MinMaxScaler
 scaler = MinMaxScaler()
 scaler.fit(X_train) #fit은 학습데이터로 해야됨
