@@ -220,6 +220,7 @@ pred_final = pd.concat([test['ID'], pred_df], axis=1) #붙이기
 pred_final.to_csv("20220625.csv", index=False) #인덱스 빼기
 ```
 
+
 ```python
 import pandas as pd
 import numpy as np
@@ -232,41 +233,46 @@ from sklearn.metrics import *
 1. 연속형/범주형 변수 구분
 X_train.info()
 X_train.head()
-
+X_train = X_train.drop(['Name','Ticket','Cabin','Fare','Embarked'], axis=1) # 불필요한 열 제거
+X_test = X_test.drop(['Name','Ticket','Cabin','Fare','Embarked'], axis=1)
 
 2. 범주형 변수 처리
 X_train['범주형변수'].nunique()
-X_train.isnull().sum() #df['col'].fillna() or df = df.drop('col')
+X_train.isnull().sum() # df['col'].fillna() or df = df.drop('col')
 
-#.nunique() 20이하
-df_train = pd.get_dummies(df_train)
-print(df_train.shape)
-df_test = pd.get_dummies(df_test)[df_train.columns] ## data leakage 위배가능성 차단
-print(df_test.shape)
+2-1. nunique() 20이하
+: 원핫인코딩 → 각 데이터별로 새로운 열 생성 (Sex→ Sex_Female, Sex_Male, 데이터는 0,1)
+X_train_onehot = pd.get_dummies(df_train['숫자 아닌 범주형변수 Sex'])
+X_test_onehot = pd.get_dummies(X_test['Sex'])
+X_train_concat = pd.concat([X_train, X_train_onehot], axis=1)
+X_train_concat.drop(['Sex'], axis=1, inplace=True)
 
-#.unique() 20이상 (100이상은 컬럼 drop)
+
+2-2. unique() 20이상(100이상은 열drop) 
+: 라벨인코딩 → 데이터를 0,1,2,3,,로 라벨링. concat 필요없음
 le = LabelEncoder()
 le = le.fit(X_train['col'])   #X_train['col']을 fit
-X_train['col'] = le.transform(X_train['col'])   #X_train['col']에 따라 encoding
-X_test['col'] = le.transform(X_test['col'])   #X_test['col']에 따라 encoding
+X_train['col'] = le.transform(X_train['col'])   # X_train['col']에 따라 encoding
+X_test['col'] = le.atransform(X_test['col'])   # X_test['col']에 따라 encoding
 
 #ID 컬럼 추출 후 제거
 
+
 3. 연속형 변수 스케일링
-#MinMaxScaler
+MinMaxScaler
 scaler = MinMaxScaler()
 scaler.fit(X_train) #fit은 학습데이터로 해야됨
 X_train_scaled = scaler.transform(X_train)
 X_test_scaled = scaler.transform(X_test)
 
-#결과 안좋으면 스케일러 바꿔보기
+결과 안 좋으면 StandardScaler
 scaler = StandardScaler()
 scaler.fit(X_train)
 X_train_scaled = scaler_standard.transform(X_train)
 X_test_scaled = scaler_standard.transform(X_test)
 
-# ------------------------------- 모델 성능 확인 ---------------------------------
 
+4. 모델 성능 확인
 from sklearn.model_selection import train_test_split
 X_train_val, X_test_val, y_train_val, y_test_val = train_test_split(X_train, y_train, random_state=200)
 
@@ -278,8 +284,8 @@ pred_val = rf.predict_proba(X_test_val)[:,1]
 from sklearn.metrics import roc_auc_score        
 print(roc_auc_score(y_test_val, pred_val))
 
-# ------------------------------ 분류 -------------------------------------------------
 
+5. 분류
 from sklearn.ensemble import RandomForestClassifier   #분류
 rf = RandomForestClassifier(max_depth = 10, random_state = 5)
 rf.fit(X_train, y_train)
@@ -298,7 +304,6 @@ pred = rf.predict(X_test)   #결과값 (각 고객이 다음 방문에 얼마를
 
 from sklearn.metrics import mean_squared_error   #회귀 검사
 print(mean_squared_error(y_test_m, pred))
-
 
 
 
