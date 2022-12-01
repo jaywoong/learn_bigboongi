@@ -208,8 +208,8 @@ X_test_num = X_test.drop(['Sex'], axis=1)
 
 MinMaxScaler
 scaler = MinMaxScaler()
-scaler.fit(X_train) # fit은 학습데이터로 해야됨
-X_train_scaled = scaler.transform(X_train_num)
+scaler.fit(X_train) # fit은 학습데이터로 해야됨. 최소최대범위를 알아냄.
+X_train_scaled = scaler.transform(X_train_num) # 변수 범위 변환
 X_test_scaled = scaler.transform(X_test_num)
 
 결과 안 좋으면 StandardScaler
