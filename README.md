@@ -174,14 +174,20 @@ from sklearn.preprocessing import *
 from sklearn.model_selection import *
 from sklearn.ensemble import *
 from sklearn.metrics import *
+★ X_train, X_test / Y_train, Y_test 항상 똑같이 처리하기
 
-
-1. 연속형/범주형 변수 구분
+1. 전처리
+1-1. 연속형/범주형 변수 구분
 X_train.info()
 X_train.head()
-X_train = X_train.drop(['Name','Ticket','Cabin','Fare','Embarked'], axis=1) # 불필요한 열 제거. 결측값 있는 열 제거
+X_train = X_train.drop(['Name','Ticket','Cabin','Fare','Embarked'], axis=1) # 불필요한 열 제거
 X_test = X_test.drop(['Name','Ticket','Cabin','Fare','Embarked'], axis=1)
 
+1-2. 결측치 처리
+범주형: 최빈값으로 대체.mode()
+이산형: 평균, 중앙값으로 대체
+결측치가 너무 많은 열은 아예 .drop(axis=0, inplace=True)
+X Y.shape() → X, Y 행 개수 같아야 함
 
 
 2. 범주형 변수 처리
