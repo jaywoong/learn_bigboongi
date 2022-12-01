@@ -197,7 +197,7 @@ X_train.isnull().sum()  # df['col'].fillna() or df = df.drop('col')
 2-1. nunique() 20이하
 : 원핫인코딩 → 각 데이터별로 새로운 열 생성 (Sex→ Sex_Female, Sex_Male, 데이터는 T/F 0/1)
 X_train_onehot = pd.get_dummies(X_train['Sex']) # 숫자 아닌 범주형변수 
-X_test_onehot = pd.get_dummies(X_test['Sex'])
+X_test_onehot = pd.get_dummies(X_test['Sex'])[X_train_onehot.columns] ★
 
 2-2. unique() 20이상 (100이상은 열drop) 
 : 라벨인코딩 → 데이터를 0,1,2,3,, 로 라벨링. concat 필요없음
