@@ -182,6 +182,7 @@ from sklearn.metrics import *
 1-1. 연속형/범주형 변수 구분
 X_train.info()
 X_train.head()
+
 X_train = X_train.drop(['Name','Ticket','Cabin','Fare','Embarked'], axis=1) # 불필요한 열 제거
 X_test = X_test.drop(['Name','Ticket','Cabin','Fare','Embarked'], axis=1)
 
@@ -198,13 +199,12 @@ X Y.shape() 확인!! → X, Y 행 개수 같아야 함
 X_train['범주형변수'].nunique()
 X_train.isnull().sum()  # df['col'].fillna() or df = df.drop('col')
 
-2-1. nunique() 20이하
-: 원핫인코딩 → 각 데이터별로 새로운 열 생성 (Sex→ Sex_Female, Sex_Male, 데이터는 T/F 0/1)
-더미변수(dummy variable)는 0 또는 1만 가지는 값으로 어떤 특징이 존재하는가 존재하지 않는가를 표시
-X_train_onehot = pd.get_dummies(X_train[['Sex']]) # 숫자 아닌 범주형변수 
+2-1. nunique() 범주형 변수 열 합계 20이하
+: 원핫인코딩 → 각 데이터별로 새로운 열 생성 (Sex→ Sex_Female, Sex_Male, 데이터는 T or F 0 or 1) 더미변수는 어떤 특징이 존재하는가 존재하지 않는가를 표시 (0 or 1)
+X_train_onehot = pd.get_dummies(X_train★[['Sex']]★)  
 X_test_onehot = pd.get_dummies(X_test[['Sex']])★[X_train_onehot.columns]★
 
-2-2. unique() 20이상 (100이상은 열drop) 
+2-2. unique() 범주형 변수 열 합계 20이상
 : 라벨인코딩 → 데이터를 0,1,2,3,, 로 라벨링. concat 필요없음
 from sklearn.preprocessing import LabelEncoder
 encoder = LabelEncoder()
@@ -215,8 +215,10 @@ X_test['col'] = encoder.transform(X_test['col'])  # X_test['col']에 따라 enco
 
 
 3. 연속형 변수 스케일링
-X_train_num = X_train.drop(['Sex'], axis=1) # 범주형 변수 제외
+/ X_train_num = X_train.drop(['Sex'], axis=1) # 범주형 변수 제외
 X_test_num = X_test.drop(['Sex'], axis=1)
+/ X_train_num= X_train[['Customer','Cost','Purchases', 'Discount', 'Weight']]
+X_test_num= X_test[['Customer','Cost','Purchases', 'Discount', 'Weight']]
 
 MinMaxScaler
 scaler = MinMaxScaler()
@@ -233,8 +235,8 @@ X_test_scaled = scaler.transform(X_test_num)
 
 
 4. 데이터 결합
-X_train_concat = pd.concat([X_train_num, X_train_onehot], axis=1)
-X_test_concat = pd.concat([X_test_num, X_test_onehot], axis=1)
+X_train_concat = pd.concat([X_train_onehot, ★pd.DataFrame(X_train_scaled)], ★axis=1)
+X_test_concat = pd.concat([X_test_onehot, pd.DataFrame(X_test_scaled)], axis=1)
 
 
 
@@ -332,54 +334,48 @@ print(help(sklearn.ensemble.RandomForestClassifier())) # 랜덤포레스트 어�
 ## mmeooo
 
 ```python
-1. 데이터 나누기
-X = pd.read_csv("X_train.csv") # 훈련용
-y = pd.read_csv("y_train.csv") # 훈련용
-t = pd.read_csv("X_test.csv") # 테스트용
-연속형 or 범주형 변수 확인 head(), info()
+★ train, test 데이터 동일하게 처리하기
 
-훈련용 데이터
-X_num = X[['Customer_care_calls', 'Customer_rating', 'Cost_of_the_Product', 'Pri
-X_cat = X[['Warehouse_block', 'Mode_of_Shipment', 'Product_importance', 'Gender'
-X_cat = pd.get_dummies(X_cat)
+1. 데이터 전처리
+1-1. 연속형/범주형, 결측치 확인 
+head(), info(), nunique()
 
-테스트용 데이터
-t_num = t[['Customer_care_calls', 'Customer_rating', 'Cost_of_the_Product', 'Pri
-t_cat = t[['Warehouse_block', 'Mode_of_Shipment', 'Product_importance', 'Gender'
-t_cat = pd.get_dummies(t_cat)
+1-2. 결측치 처리
+train['Income'] = train['Income'].fillna(train['Income'].mean())
 
-원핫인코딩한 범주형 변수들 합치기
-X_cat, t_cat = X_cat.align(t_cat, join='inner', axis=1)
+1-3. 범주형 변수
+X_train_onehot= train[['Type','Graduate','TravelledAbroad']]
+import pandas as pd
+X_train_onehot=pd.get_dummies(X_train_onehot)
+X_test_onehot=pd.get_dummies(X_test_onehot)★[X_train_onehot.columns]★
 
+1-4. 연속형 변수
+col_num= ['Age','Income','FamilyMembers']
+from sklearn.preprocessing import *
+scaler= MinMaxScaler()
+scaler.fit(train[col_num])
+X_train[col_num]★ = scaler.fit_transform(train[col_num])
+X_train_scaled= X_train[col_num]
 
-2. 연속형 변수 스케일링
-from sklearn.preprocessing import MinMaxScaler
-minmax = MinMaxScaler()
-minmax.fit(X_num) # fit은 훈련용으로!!
-X_scaled = minmax.transform(X_num)
-t_scaled = minmax.transform(t_num)
-
-
-3. 최종 데이터 (연속형+범주형)
-X_train = pd.concat([ pd.DataFrame(X_scaled), X_cat ], axis=1) #데이터프레임을 붙
-X_test = pd.concat([ pd.DataFrame(t_scaled), t_cat ], axis=1)
-y_train = y['Reached.on.Time_Y.N']
+1-5. 데이터 합치기
+X_train= pd.concat([X_train_onehot, ★pd.DataFrame(X_train_scaled)], axis=1)
 
 
-4. 모델 적용 (훈련용 데이터)
-from sklearn.linear_model import LogisticRegression
-model = LogisticRegression()
-model.fit(X_train, y_train) #fit은 훈련용으로!!!
+2. 결과 예측
+2-1. 예측 모델 생성
+y = train[['TravelInsurance']]
+from sklearn.ensemble import *
+model = RandomForestClassifier(max_depth=25, random_state=10)
+model.fit(X_train, y)
+
+2-2. 예측값
+pred = model.predict(X_test)
 
 
-5. 결과 예측 (테스트용 데이터)
-pred_val = model.predict_proba(X_test)[:, 1] #참인 확률 값만 가져오기 (0:False, 1:True)
-pred_df = pd.DataFrame(pred, columns=['pred_df']) #데이터프레임으로 만들기
-pred_final = pd.concat([test['ID'], pred_df], axis=1) #붙이기
+3. 제출
+answer= pd.DataFrame({'ID':test.id, 'TravelInsurance':pred })
+answer.to_csv("20220625.csv", index=False) #인덱스 빼기
 
-
-6. 제출
-pred_final.to_csv("20220625.csv", index=False) #인덱스 빼기
 ```
 
 
