@@ -60,7 +60,7 @@ round(value, 자릿수) #반올림
 df['열이름'].skew() #왜도 Skewness
 df['열이름'].kurt() #첨도 Kurtosis
 df['열이름'].cumsum() #누적합
-np.log1p('열이름'), np.log(df['열이름']) #로그 변환
+★np.log1p('열이름'), np.log(df['열이름']) #로그 변환
 np.sqrt(df['열이름']) #제곱근 변환
 abs(value) #절댓값
 print("%.3f" % 변수) #소수점 출력
@@ -87,10 +87,10 @@ df['열이름'].isnull().sum() # 특정 열 결측치 개수
 df.count(), df.shape[0] # 열별 데이터 개수
 
 df['열이름'].dropna() # axis=0 행 삭제, axis=1 열 삭제
-df.dropna(★subset=['열이름'], inplace=True) # 특정 열의 결측치 행 삭제
+df.dropna(★subset=★['열이름'], inplace=True) # 특정 열의 결측치 행 삭제
 
 df.fillna(method= 'ffill','bfill') # 결측치를 ffill이전 값으로 대체, bfill이후 값으로 대체
-df['열이름'].fillna(df.mean()['열이름']) # 결측치를 특정 열의 평균값으로 대체
+df['열이름'].fillna(★df.mean()['열이름']) # 특정 열의 결측치를 특정 열의 평균값으로 대체
 
 df['열이름']= df['열이름'].fillna(df['분류 기준 열'].map({'쟈갸': 0, '고마워': 1, '많이' : 2, '반성해' : 4})) # 분류 기준별 다른 값으로 결측치 대체 (도시별 중앙값 대체 예제)
 df['f1']= df[(df['city']=='서울')]['f1'].fillna(a) 
@@ -105,11 +105,11 @@ df.sort_values(by=['열1','열2']) # 열1 기준 정렬 후 같은 값은 열2 �
 df['열이름'].sort_values() # 해당 열만 정렬(series)
 df.sort_index(by='정렬기준 행', ascending= TF) 
 
-df.drop(axis=0행/1열, index='행이름', ★columns='열이름', inplace=True) # 행/열 삭제
-df.drop(df[df['age']-np.floor(df['age'])!=0].index★, inplace=True) # 조건에 해당하는 행 삭제
+df.drop(axis=0행/1열, ★index='행이름', ★columns=★'열이름', inplace=True) # 행/열 삭제
+df.drop(df[df['age']-np.floor(df['age'])!=0].index★, inplace=True) # 조건에 해당하는 행 삭제 .index !!
 df.drop_duplicates(subset='열이름') # 내용이 중복되는 행 제거
 
-df['열이름'].replace(대체될 값, 대체할 값)
+df['열이름'].replace(★대체될 값, 대체할 값)
 df['열이름'].replace({0: '내가', 1: '많이', 2: '미안해'}) # 값에 따라 다른 값으로 대체
 
 df['열이름'].astype('타입명') # 타입 변환
@@ -125,13 +125,13 @@ df.resample(rule, axis=0) # Datetime Index를 원하는 주기로 나눔. rule='
 df.groupby('그룹기준 열')['계산할 열'].통계함수() 
 df.groupby('이름')['휴일'].sum() # 인당 남은 휴가의 총합
 df.groupby('월')['휴일'].max() # 월별 남은 휴가의 최대
-df.groupby(['월', '이름']).agg({'휴일':'mean', '야근':'sum'}) # 월별 인당 휴일 평균, 야근 총합
+df.groupby(★['월', '이름']).agg({'휴일':'mean', '야근':'sum'}) # 월별 인당 휴일 평균, 야근 총합
 df.groupby(★['열이름1', '열이름2'])★[['열이름3']].mean() #열1,2별 열3 평균
 
 a,b,c,d= df.groupby('city')['f1'].median() # 같은 열(city)의 특정 열(f1) 중앙값
 df= df.group_by(['열이름1', '열이름2', as_index=False]) # 데이터프레임으로 결과 뽑을땐 as_index=False
 
-df['새로 생성할 열이름']= ★pd.qcut(df['기준 열이름'], ★q=구간 개수, ★labels=['구간명1', '구간명2',,,]) # q개씩 균등하게 분할
+df['qcut_range']= ★pd.qcut(df['기준 열이름'], ★q=구간 개수, ★labels=['구간명1', '구간명2',,,]) # q개씩 균등하게 분할
 
 fill_func= lambda x: x.fillna(x.mean())
 df_1= df.groupby('열이름').apply(fill_func) # 그룹 평균값으로 대체
@@ -139,7 +139,7 @@ df_1= df.groupby('열이름').apply(fill_func) # 그룹 평균값으로 대체
 
 데이터 연결
 ★pd.concat( ★[df1, df2], axis=0) # axis=0 행 방향(밑에 붙임), axis=1 열 방향(옆에 붙임)
-★pd.merge( ★df_left, df_right, how='inner', on='병합 기준 열') # 공통된 열끼리 병합. NaN값이 적은 df를 기준으로 병합 how=left, right, inner, outer
+★pd.merge( ★df_left, df_right, how='inner', ★on='병합 기준 열') # 공통된 열끼리 병합. NaN값이 적은 df를 기준으로 병합 how=left, right, inner, outer
 
 
 행열 이름 지정
@@ -154,7 +154,7 @@ df.reset_index(drop=True, inplace=True)
 * StandardScaler: Z-score스케일 변환
 from sklearn.preprocessing import StandardScaler
 scaler = StandardScaler()
-df['열이름] = scaler.fit_transform(df★[['열이름']]) # 괄호 2번 !!!
+df['열이름] = scaler.fit_transform(★df[['열이름']]★) # 괄호2번!!
 
 * MinMaxScaler:  MinMax스케일 변환
 from sklearn.preprocessing import MinMaxScaler
@@ -353,30 +353,30 @@ X_train_onehot = pd.get_dummies(X_train_onehot)
 X_test_onehot = pd.get_dummies(X_test_onehot)★[X_train_onehot.columns]★
 
 1-4. 연속형 변수
-col_num = ★['Age','Income','FamilyMembers']
+col = ★['Age','Income','FamilyMembers']
 from sklearn.preprocessing import *
-scale r= MinMaxScaler()
-scaler.fit(★X_train[col_num])
-★X_train[col_num] = scaler.fit_transform(★X_train[col_num])
-X_train_scaled = X_train[col_num]
+scale = MinMaxScaler()
+scaler.fit(★X_train[col])
+★X_train[col] = scaler.transform(★X_train[col])
+X_train_scaled = X_train[col]
 
 1-5. 데이터 합치기
-X_train= pd.concat([X_train_onehot, X_train_scaled], axis=1)
+X_train_pred= pd.concat([X_train_onehot, X_train_scaled], axis=1)
 
 
 2. 결과 예측
 2-1. 예측 모델 생성
-y = X_train[['TravelInsurance']]
+y = X_train★[['TravelInsurance']]
 from sklearn.ensemble import *
 model = RandomForestClassifier(max_depth=25, random_state=10)
-model.fit(X_train, y)
+model.fit(X_train_pred, y)
 
 2-2. 예측값
-pred = model.predict(X_test)
+pred = model.predict(X_test_pred★)
 
 
 3. 제출
-answer = pd.DataFrame({ 'ID':test.id, 'TravelInsurance':pred })
+answer = pd.DataFrame({'ID':test.id, 'TravelInsurance':pred})
 answer.to_csv("20220625.csv", index=False)
 
 ```
