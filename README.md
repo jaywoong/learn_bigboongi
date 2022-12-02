@@ -241,13 +241,15 @@ X_test_concat = pd.concat([X_test_onehot, pd.DataFrame(X_test_scaled)], axis=1)
 
 
 ++ 모델 성능 확인
-\ from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split
 X_train_val, X_test_val, y_train_val, y_test_val = train_test_split(X_train, y_train, random_state=200)
-\ from sklearn.ensemble import RandomForestClassifier 
+
+from sklearn.ensemble import RandomForestClassifier 
 model = RandomForestClassifier(max_depth = 10, random_state = 5)
 model.fit(X_train_val, y_train_val)
 pred_val = model.predict_proba(X_test_val)[:,1]
-\ from sklearn.metrics import roc_auc_score        
+
+from sklearn.metrics import roc_auc_score        
 print(roc_auc_score(y_test_val, pred_val))
 
 
@@ -310,6 +312,7 @@ answer.to_csv('0300.csv', index=False) # 데이터프레임 인덱스 삭제하�
 
 ![image](https://user-images.githubusercontent.com/85271084/204086247-e8181b71-57ca-4ee3-92ea-46829a5d0c3e.png)
 
+
 ### 어떻게 쓰더라
 ```python
 판다스
@@ -341,29 +344,29 @@ print(help(sklearn.ensemble.RandomForestClassifier())) # 랜덤포레스트 어�
 head(), info(), nunique()
 
 1-2. 결측치 처리
-train['Income'] = train['Income'].fillna(train['Income'].mean())
+X_train['Income'] = X_train['Income'].fillna(X_train['Income'].mean())
 
 1-3. 범주형 변수
-X_train_onehot= train[['Type','Graduate','TravelledAbroad']]
+X_train_onehot = X_train[['Type','Graduate','TravelledAbroad']]
 import pandas as pd
-X_train_onehot=pd.get_dummies(X_train_onehot)
-X_test_onehot=pd.get_dummies(X_test_onehot)★[X_train_onehot.columns]★
+X_train_onehot = pd.get_dummies(X_train_onehot)
+X_test_onehot = pd.get_dummies(X_test_onehot)★[X_train_onehot.columns]★
 
 1-4. 연속형 변수
-col_num= ['Age','Income','FamilyMembers']
+col_num = ★['Age','Income','FamilyMembers']
 from sklearn.preprocessing import *
-scaler= MinMaxScaler()
-scaler.fit(train[col_num])
-X_train[col_num]★ = scaler.fit_transform(train[col_num])
-X_train_scaled= X_train[col_num]
+scale r= MinMaxScaler()
+scaler.fit(★X_train[col_num])
+★X_train[col_num] = scaler.fit_transform(★X_train[col_num])
+X_train_scaled = X_train[col_num]
 
 1-5. 데이터 합치기
-X_train= pd.concat([X_train_onehot, ★pd.DataFrame(X_train_scaled)], axis=1)
+X_train= pd.concat([X_train_onehot, X_train_scaled], axis=1)
 
 
 2. 결과 예측
 2-1. 예측 모델 생성
-y = train[['TravelInsurance']]
+y = X_train[['TravelInsurance']]
 from sklearn.ensemble import *
 model = RandomForestClassifier(max_depth=25, random_state=10)
 model.fit(X_train, y)
@@ -373,10 +376,11 @@ pred = model.predict(X_test)
 
 
 3. 제출
-answer= pd.DataFrame({'ID':test.id, 'TravelInsurance':pred })
-answer.to_csv("20220625.csv", index=False) #인덱스 빼기
+answer = pd.DataFrame({ 'ID':test.id, 'TravelInsurance':pred })
+answer.to_csv("20220625.csv", index=False)
 
 ```
+
 
 
 ```python
@@ -386,36 +390,29 @@ from sklearn.preprocessing import MinMaxScaler
 scaler_minmax = MinMaxScaler()
 scaler_minmax.fit(X_train) #fit은 학습데이터로 해야됨
 X_scaled_minmax_train = scaler_minmax.transform(X_train)
-X_scaled_minmax_test = scaler_minmax.transform(X_test)
-
 2. Standardization
 scaler_standard = StandardScaler()
 scaler_standard.fit(X_train)
 X_scaled_standard_train = scaler_standard.transform(X_train)
-
 
 모델 학습
 1. 선형 회귀
 from sklearn.linear_model import LinearRegression
 model = LinearRegression()
 model.fit(X_scaled_minmax_train, y_train)
-
 2. 로지스틱 회귀
 from sklearn.linear_model import LogisticRegression
 model = LogisticRegression()
 model.fit(X_scaled_minmax_train, y_train)
-
 3. 랜덤포레스트
 from sklearn.ensemble import RandomForestRegressor
 model = RandomForestRegressor()
 model.fit(X_scaled_train, y_train)
 
-
 정확도 확인
 1. R-square 설명력
 model.score(X_scaled_minmax_train, y_train) #훈련데이터
 model.score(X_scaled_minmax_test, y_test) #테스트데이터
-
 2. RMSE
 import numpy as np
 from sklearn.metrics import mean_squared_error 
@@ -423,12 +420,10 @@ MSE_train = mean_squared_error(y_train, pred_train)
 MSE_test = mean_squared_error(y_test, pred_test)
 print("훈련데이터 RMSE:", np.sqrt(MSE_train))
 print("테스트데이터 RMSE:", np.sqrt(MSE_test)
-
 3. 상세 평가지표
 from sklearn.metrics import classification_report
 cfreport_train = classification_report(y_train, pred_train)
 print("분류예측 레포트:\n", cfreport_train)
-
 
 교차검증
 1. cross_val_score : 랜덤 없음
@@ -436,13 +431,11 @@ from sklearn.model_selection import cross_val_score
 scores = cross_val_score(model, X_train, y_train, cv=5)
 print("5개 테스트 셋 정확도:", scores)
 print("정확도 평균:", scores.mean())
-
 2. KFold : 랜덤 있음
 from sklearn.model_selection import KFold
 kfold = KFold(n_splits=5, shuffle=True, random_state=42)
 score = cross_val_score(model, X_train, y_train, cv=kfold)
 print("5개 폴드의 정확도:", scores)
-
 3. ShuffleSplit : 임의 분할
 from sklearn.model_selection import ShuffleSplit
 shuffle_split = ShuffleSplit(test_size=0.5, train_size=0.5, random_state=42)
